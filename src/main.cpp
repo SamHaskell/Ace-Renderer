@@ -16,12 +16,12 @@ class AceRenderer : public Ace::App {
 
         }
 
-        void Render() override {
-
+        void Render(Ace::PixelBuffer& pixelBuffer) override {
+            pixelBuffer.Clear(0xFF0000FF);
         }
 
         void OnEvent() override {
-            
+
         }
         
     private:
