@@ -1,9 +1,8 @@
 #include <stdio.h>
 
+#include "defines.h"
 #include "SDL.h"
 
 int main() {
-    SDL_Init(SDL_INIT_EVERYTHING);
-    printf("Hello world!");
-    SDL_Quit();
+    
 }
