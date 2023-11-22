@@ -1,0 +1,14 @@
+# Directories
+.vs/
+.vscode/
+bin/
+build/
+
+# Files
+.DS_Store
+*.vcxproj
+*.vcxproj.user
+*.vcxproj.filters
+*.sln
+*.log
+Makefile
