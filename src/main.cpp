@@ -3,6 +3,7 @@
 #include "core/defines.hpp"
 #include "core/app.hpp"
 
+#include "maths/rect.hpp"
 #include "graphics/graphicsdevice.hpp"
 
 class AceRenderer : public Ace::App {
@@ -21,6 +22,8 @@ class AceRenderer : public Ace::App {
         void Render(Ace::PixelBuffer& pixelBuffer) override {
             pixelBuffer.Clear(0xFF222222);
             Ace::GraphicsDevice::DrawGrid(pixelBuffer, 0xFF00FF00, 32, 32);
+            Ace::GraphicsDevice::DrawRect(pixelBuffer, 0xFFFF0000, {50, 100, 200, 400});
+            Ace::GraphicsDevice::DrawRectFill(pixelBuffer, 0xFF0000FF, {250, 500, 500, 80});
         }
 
         void OnEvent() override {
