@@ -37,10 +37,8 @@ namespace Ace {
         }
 
         inline void Clear(u32 value) {
-            u8* mem = (u8*)Data;
             for (i32 i = 0; i < Width * Height; i++) {
-                *mem = value;
-                mem += 4;
+                Data[i] = value;
             }
         }
     };
