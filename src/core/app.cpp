@@ -24,7 +24,7 @@ namespace Ace {
             NULL,
             SDL_WINDOWPOS_CENTERED,
             SDL_WINDOWPOS_CENTERED,
-            800, 600,
+            1280, 720,
             SDL_WINDOW_BORDERLESS
         );
 
@@ -46,13 +46,13 @@ namespace Ace {
             Create the PixelBuffer that the app will draw to.
         */
 
-        m_PixelBuffer = new PixelBuffer(800, 600);
+        m_PixelBuffer = new PixelBuffer(1280, 720);
 
         m_PixelBufferTexture = SDL_CreateTexture(
             m_Renderer,
             SDL_PIXELFORMAT_ARGB8888,
             SDL_TEXTUREACCESS_STREAMING,
-            800, 600
+            1280, 720
         );
 
         Initialise();
@@ -118,7 +118,7 @@ namespace Ace {
                 m_PixelBufferTexture,
                 NULL,
                 m_PixelBuffer->Data,
-                800 * sizeof(u32)
+                1280 * sizeof(u32)
             );
 
             SDL_RenderCopy(

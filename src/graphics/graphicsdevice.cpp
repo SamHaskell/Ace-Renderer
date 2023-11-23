@@ -22,20 +22,20 @@ namespace Ace {
         if ((rect.w < 0) || (rect.h < 0)) {
             return;
         }
-        for (i32 i = rect.x; i < rect.x + rect.w; i++) {
-            pixelBuffer.SetPixel(i, rect.y, color);
-            pixelBuffer.SetPixel(i, rect.y + rect.h, color);
+        for (i32 i = 0; i < rect.w; i++) {
+            pixelBuffer.SetPixel(i + rect.x, rect.y, color);
+            pixelBuffer.SetPixel(i + rect.x, rect.y + rect.h, color);
         }
-        for (i32 j = rect.y; j < rect.y + rect.h; j++) {
-            pixelBuffer.SetPixel(rect.x, j, color);
-            pixelBuffer.SetPixel(rect.x + rect.w, j, color);
+        for (i32 j = 0; j < rect.h; j++) {
+            pixelBuffer.SetPixel(rect.x, rect.y, color);
+            pixelBuffer.SetPixel(rect.x + rect.w, rect.y, color);
         }
     }
 
     void GraphicsDevice::DrawRectFill(PixelBuffer& pixelBuffer, u32 color, const Rect& rect) {
-        for (i32 i = rect.x; i < rect.x + rect.w; i++) {
-            for (i32 j = rect.y; j < rect.y + rect.h; j++) {
-                pixelBuffer.SetPixel(i, j, color);
+        for (i32 i = 0; i < rect.w; i++) {
+            for (i32 j = 0; j < rect.h; j++) {
+                pixelBuffer.SetPixel(i + rect.x, j + rect.y, color);
             }
         }
     }

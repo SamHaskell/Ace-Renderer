@@ -5,6 +5,7 @@
 
 #include "maths/maths.hpp"
 #include "graphics/graphicsdevice.hpp"
+#include "graphics/mesh.hpp"
 
 namespace Ace {
     class AceRenderer : public App {
@@ -13,20 +14,7 @@ namespace Ace {
             ~AceRenderer() = default;
 
             void Initialise() override {
-                for (i32 i = 0; i < 21; i++) {
-                    for (i32 j = 0; j < 21; j++) {
-                        for (i32 k = 0; k < 21; k++) {
-                            m_CubePoints[(k * 21 * 21) + (j * 21) + i] = {
-                                .x = (i - 10) * 0.03f,
-                                .y = (j - 10) * 0.03f,
-                                .z = (k - 10) * 0.03f
-                            };
-                        }
-                    }
-                }
-
-                m_CameraPosition = { 0.0f, 0.0f, -1.0f };
-
+                m_CameraPosition = { 0.0f, 0.0f, -3.0f };
                 m_CubeRotation = {0.0f, 0.0f, 0.0f};
             }
 
@@ -51,21 +39,48 @@ namespace Ace {
             }
 
             void Render(PixelBuffer& pixelBuffer) override {
-                pixelBuffer.Clear(0xFF222222);
+                Vec2 screenCenter = {(f32)pixelBuffer.Width / 2.0f, (f32)pixelBuffer.Height / 2.0f};
+                
+                pixelBuffer.Clear(0xFF111111);
+                GraphicsDevice::DrawGrid(pixelBuffer, 0xFF333333, 64, 64);
 
-                for (i32 i = 0; i < 21 * 21 * 21; i++) {
-                    Vec3 rotatedPosition = RotateX(RotateY(RotateZ(m_CubePoints[i], m_CubeRotation.z), m_CubeRotation.y), m_CubeRotation.x);
-                    m_ProjectedPoints[i] = ProjectPerspective(rotatedPosition - m_CameraPosition);
+                for (i32 i = 0; i < MESH_FACE_COUNT; i++) {
+                    Face face = g_MeshFaces[i];
+                    Vec3 faceVerts[3] = {
+                        g_MeshVertices[face.a],
+                        g_MeshVertices[face.b],
+                        g_MeshVertices[face.c]
+                    };
+
+                    Vec3 transformedVerts[3] = {
+                        RotateZ(RotateY(RotateX(faceVerts[0], m_CubeRotation.x), m_CubeRotation.y), m_CubeRotation.z) - m_CameraPosition,
+                        RotateZ(RotateY(RotateX(faceVerts[1], m_CubeRotation.x), m_CubeRotation.y), m_CubeRotation.z) - m_CameraPosition,
+                        RotateZ(RotateY(RotateX(faceVerts[2], m_CubeRotation.x), m_CubeRotation.y), m_CubeRotation.z) - m_CameraPosition
+                    };
+
+                    m_TrianglesToRender[i] = {
+                        ProjectPerspective(transformedVerts[0]) * 160 + screenCenter,
+                        ProjectPerspective(transformedVerts[1]) * 160 + screenCenter,
+                        ProjectPerspective(transformedVerts[2]) * 160 + screenCenter
+                    };
                 }
 
-                for (i32 i = 0; i < 21 * 21 * 21; i++) {
-                    pixelBuffer.SetPixel(
-                        m_ProjectedPoints[i].x * 640 + (pixelBuffer.Width / 2), 
-                        m_ProjectedPoints[i].y * 640 + (pixelBuffer.Height / 2), 
-                        0xFF00FF00
-                    );
+                for (i32 i = 0; i < MESH_FACE_COUNT; i++) {
+                    Triangle triangle = m_TrianglesToRender[i];
+                    for (i32 j = 0; j < 3; j++) {
+                        Rect rect = {
+                            triangle.points[j].x,
+                            triangle.points[j].y,
+                            4,
+                            4
+                        };
+                        GraphicsDevice::DrawRectFill(
+                            pixelBuffer,
+                            0xFFFFFF00,
+                            rect
+                        );  
+                    }
                 }
-
             }
 
             void OnEvent() override {
@@ -75,8 +90,7 @@ namespace Ace {
         private:
             Vec3 m_CameraPosition;
             Vec3 m_CubeRotation;
-            Vec3 m_CubePoints[21 * 21 * 21];
-            Vec2 m_ProjectedPoints[21 * 21 * 21];
+            Triangle m_TrianglesToRender[MESH_FACE_COUNT];
     };
 }
 
