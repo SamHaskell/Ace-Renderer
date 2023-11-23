@@ -3,7 +3,6 @@
 #include "core/defines.hpp"
 #include "graphics/pixelbuffer.hpp"
 
-
 namespace Ace {
     struct Rect;
     

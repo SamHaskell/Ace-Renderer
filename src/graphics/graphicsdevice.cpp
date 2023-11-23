@@ -1,5 +1,5 @@
 #include "graphics/graphicsdevice.hpp"
-#include "maths/rect.hpp"
+#include "maths/maths.hpp"
 
 namespace Ace {
     void GraphicsDevice::DrawGrid(PixelBuffer& pixelBuffer, u32 color, u32 xStep, u32 yStep) {

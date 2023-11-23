@@ -54,6 +54,8 @@ namespace Ace {
             800, 600
         );
 
+        Initialise();
+
         /*
             Main Loop
         */
