@@ -26,10 +26,14 @@ namespace Ace {
                 }
 
                 m_CameraPosition = { 0.0f, 0.0f, -1.0f };
+
+                m_CubeRotation = {0.0f, 0.0f, 0.0f};
             }
 
             void Update(f64 dt) override {
-
+                ACE_INFO("Frame Time: %.3lf ms", dt * 1000.0);
+                m_CubeRotation.y += 0.1f * dt;
+                m_CubeRotation.x += 0.05f * dt;
             }
 
             Vec2 ProjectOrthographic(Vec3 position) {
@@ -50,7 +54,8 @@ namespace Ace {
                 pixelBuffer.Clear(0xFF222222);
 
                 for (i32 i = 0; i < 21 * 21 * 21; i++) {
-                    m_ProjectedPoints[i] = ProjectPerspective(m_CubePoints[i] - m_CameraPosition);
+                    Vec3 rotatedPosition = RotateX(RotateY(RotateZ(m_CubePoints[i], m_CubeRotation.z), m_CubeRotation.y), m_CubeRotation.x);
+                    m_ProjectedPoints[i] = ProjectPerspective(rotatedPosition - m_CameraPosition);
                 }
 
                 for (i32 i = 0; i < 21 * 21 * 21; i++) {
@@ -69,6 +74,7 @@ namespace Ace {
             
         private:
             Vec3 m_CameraPosition;
+            Vec3 m_CubeRotation;
             Vec3 m_CubePoints[21 * 21 * 21];
             Vec2 m_ProjectedPoints[21 * 21 * 21];
     };

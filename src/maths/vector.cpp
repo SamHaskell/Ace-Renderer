@@ -69,4 +69,28 @@ namespace Ace {
             u.x*v.y - u.y*v.x
         };
     }
+
+    Vec3 RotateX(const Vec3& v, f32 angle) {
+        return {
+            .x = v.x,
+            .y = v.y * cos(angle) - v.z * sin(angle),
+            .z = v.y * sin(angle) + v.z * cos(angle)
+        };
+    }
+
+    Vec3 RotateY(const Vec3& v, f32 angle) {
+        return {
+            .x = v.x * cos(angle) - v.z * sin(angle),
+            .y = v.y,
+            .z = v.x * sin(angle) + v.z * cos(angle)
+        };
+    }
+
+    Vec3 RotateZ(const Vec3& v, f32 angle) {
+        return {
+            .x = v.x * cos(angle) - v.y * sin(angle),
+            .y = v.x * sin(angle) + v.y * cos(angle),
+            .z = v.z
+        };
+    }
 }

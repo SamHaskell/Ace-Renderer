@@ -108,6 +108,10 @@ namespace Ace {
     Vec3 LerpClamped(const Vec3& u, const Vec3& v, f32 t);
     Vec3 Cross(const Vec3& u, const Vec3& v);
 
+    Vec3 RotateX(const Vec3& v, f32 angle);
+    Vec3 RotateY(const Vec3& v, f32 angle);
+    Vec3 RotateZ(const Vec3& v, f32 angle);
+
     struct Vec4 {
         f32 x;
         f32 y;

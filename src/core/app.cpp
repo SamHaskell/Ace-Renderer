@@ -1,6 +1,7 @@
 #include "core/app.hpp"
 
 #include "SDL.h"
+#include <chrono>
 
 // TODO: Platform abstractions.
 
@@ -61,6 +62,8 @@ namespace Ace {
         */
 
         m_Running = true;
+        m_MainClock.Start();
+
         while (m_Running) {
             Tick();
         }
@@ -78,6 +81,7 @@ namespace Ace {
     }
     
     void App::Tick() {
+        f64 dt = m_MainClock.Tick();
 
         // Event Handling
         {
@@ -99,7 +103,7 @@ namespace Ace {
 
         // Update
         {
-            Update(0.0);
+            Update(dt);
         }
 
         
