@@ -14,14 +14,18 @@ namespace Ace {
             ~AceRenderer() = default;
 
             void Initialise() override {
+                m_CubeMesh = Mesh::Create(g_CubeVertices, g_CubeFaces);
                 m_CameraPosition = { 0.0f, 0.0f, -3.0f };
-                m_CubeRotation = {0.0f, 0.0f, 0.0f};
+            }
+
+            void Shutdown() override {
+                delete m_CubeMesh;
             }
 
             void Update(f64 dt) override {
                 ACE_INFO("Frame Time: %.3lf ms", dt * 1000.0);
-                m_CubeRotation.y += 0.1f * dt;
-                m_CubeRotation.x += 0.05f * dt;
+                m_CubeMesh->Rotation.y += 0.1f * dt;
+                m_CubeMesh->Rotation.x += 0.05f * dt;
             }
 
             Vec2 ProjectOrthographic(Vec3 position) {
@@ -44,18 +48,18 @@ namespace Ace {
                 pixelBuffer.Clear(0xFF111111);
                 GraphicsDevice::DrawGrid(pixelBuffer, 0xFF333333, 64, 64);
 
-                for (i32 i = 0; i < MESH_FACE_COUNT; i++) {
-                    Face face = g_MeshFaces[i];
+                for (i32 i = 0; i < m_CubeMesh->Faces.size(); i++) {
+                    Face face = m_CubeMesh->Faces[i];
                     Vec3 faceVerts[3] = {
-                        g_MeshVertices[face.a],
-                        g_MeshVertices[face.b],
-                        g_MeshVertices[face.c]
+                        m_CubeMesh->Vertices[face.a],
+                        m_CubeMesh->Vertices[face.b],
+                        m_CubeMesh->Vertices[face.c]
                     };
 
                     Vec3 transformedVerts[3] = {
-                        RotateZ(RotateY(RotateX(faceVerts[0], m_CubeRotation.x), m_CubeRotation.y), m_CubeRotation.z) - m_CameraPosition,
-                        RotateZ(RotateY(RotateX(faceVerts[1], m_CubeRotation.x), m_CubeRotation.y), m_CubeRotation.z) - m_CameraPosition,
-                        RotateZ(RotateY(RotateX(faceVerts[2], m_CubeRotation.x), m_CubeRotation.y), m_CubeRotation.z) - m_CameraPosition
+                        RotateZ(RotateY(RotateX(faceVerts[0], m_CubeMesh->Rotation.x), m_CubeMesh->Rotation.y), m_CubeMesh->Rotation.z) - m_CameraPosition,
+                        RotateZ(RotateY(RotateX(faceVerts[1], m_CubeMesh->Rotation.x), m_CubeMesh->Rotation.y), m_CubeMesh->Rotation.z) - m_CameraPosition,
+                        RotateZ(RotateY(RotateX(faceVerts[2], m_CubeMesh->Rotation.x), m_CubeMesh->Rotation.y), m_CubeMesh->Rotation.z) - m_CameraPosition
                     };
 
                     m_TrianglesToRender[i] = {
@@ -65,8 +69,30 @@ namespace Ace {
                     };
                 }
 
-                for (i32 i = 0; i < MESH_FACE_COUNT; i++) {
+                for (i32 i = 0; i < m_CubeMesh->Faces.size(); i++) {
                     Triangle triangle = m_TrianglesToRender[i];
+                    
+                    GraphicsDevice::DrawLine(
+                        pixelBuffer,
+                        0xFFFF0000,
+                        triangle.points[0],
+                        triangle.points[1]
+                    );
+
+                    GraphicsDevice::DrawLine(
+                        pixelBuffer,
+                        0xFFFF0000,
+                        triangle.points[1],
+                        triangle.points[2]
+                    );
+
+                    GraphicsDevice::DrawLine(
+                        pixelBuffer,
+                        0xFFFF0000,
+                        triangle.points[2],
+                        triangle.points[0]
+                    );
+                    
                     for (i32 j = 0; j < 3; j++) {
                         Rect rect = {
                             triangle.points[j].x,
@@ -89,8 +115,8 @@ namespace Ace {
             
         private:
             Vec3 m_CameraPosition;
-            Vec3 m_CubeRotation;
-            Triangle m_TrianglesToRender[MESH_FACE_COUNT];
+            Triangle m_TrianglesToRender[CUBE_FACE_COUNT];
+            Mesh* m_CubeMesh;
     };
 }
 

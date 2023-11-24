@@ -18,6 +18,20 @@ namespace Ace {
         }
     }
 
+    void GraphicsDevice::DrawLine(PixelBuffer& pixelBuffer, u32 color, Vec2 start, Vec2 end) {
+        i32 deltaX = (i32)(end.x - start.x);
+        i32 deltaY = (i32)(end.y - start.y);
+
+        f32 span =  fmax(static_cast<f32>(deltaX), static_cast<f32>(deltaY));
+
+        f32 dx = deltaX / span;
+        f32 dy = deltaY / span;
+
+        for (i32 i = 0; i < (i32)span; i++) {
+            pixelBuffer.SetPixel(round(i*dx + start.x), round(i*dy + start.y), color);
+        }
+    }
+
     void GraphicsDevice::DrawRect(PixelBuffer& pixelBuffer, u32 color, const Rect& rect) {
         if ((rect.w < 0) || (rect.h < 0)) {
             return;

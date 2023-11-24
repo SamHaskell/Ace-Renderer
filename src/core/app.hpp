@@ -34,6 +34,7 @@ namespace Ace {
             virtual ~App() = default;
             void Run();
             virtual void Initialise() = 0;
+            virtual void Shutdown() = 0;
             virtual void Update(f64 dt) = 0;
             virtual void Render(PixelBuffer& pixelBuffer) = 0;
             virtual void OnEvent() = 0;

@@ -72,6 +72,8 @@ namespace Ace {
             Cleanup
         */
 
+        Shutdown();
+
         SDL_DestroyTexture(m_PixelBufferTexture);
         delete m_PixelBuffer;
 
