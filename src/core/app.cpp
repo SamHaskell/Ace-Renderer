@@ -20,12 +20,20 @@ namespace Ace {
             TODO: Parametrise Window dimensions and store somewhere
         */
 
+        SDL_DisplayMode displayMode;
+        SDL_GetCurrentDisplayMode(0, &displayMode);
+
+        i32 windowWidth = displayMode.w;
+        i32 windowHeight = displayMode.h;
+
+        u32 flags = SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_BORDERLESS;
+
         m_Window = SDL_CreateWindow(
             NULL,
             SDL_WINDOWPOS_CENTERED,
             SDL_WINDOWPOS_CENTERED,
-            1280, 720,
-            SDL_WINDOW_BORDERLESS
+            windowWidth, windowHeight,
+            flags
         );
 
         ACE_ASSERT(m_Window != NULL, "SDL Failed to open a Window");
@@ -46,13 +54,13 @@ namespace Ace {
             Create the PixelBuffer that the app will draw to.
         */
 
-        m_PixelBuffer = new PixelBuffer(1280, 720);
+        m_PixelBuffer = new PixelBuffer(windowWidth, windowHeight);
 
         m_PixelBufferTexture = SDL_CreateTexture(
             m_Renderer,
             SDL_PIXELFORMAT_ARGB8888,
             SDL_TEXTUREACCESS_STREAMING,
-            1280, 720
+            windowWidth, windowHeight
         );
 
         Initialise();
@@ -116,11 +124,15 @@ namespace Ace {
 
             Render(*m_PixelBuffer);
 
+            i32 windowWidth;
+            i32 windowHeight;
+            SDL_GetWindowSize(m_Window, &windowWidth, &windowHeight);
+
             SDL_UpdateTexture(
                 m_PixelBufferTexture,
                 NULL,
                 m_PixelBuffer->Data,
-                1280 * sizeof(u32)
+                windowWidth * sizeof(u32)
             );
 
             SDL_RenderCopy(

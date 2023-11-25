@@ -45,6 +45,16 @@ STATIC_ASSERT(sizeof(i64) == 8, "Expected i64 to be 8 byte(s).");
 STATIC_ASSERT(sizeof(f32) == 4, "Expected f32 to be 4 byte(s).");
 STATIC_ASSERT(sizeof(f64) == 8, "Expected f64 to be 8 byte(s).");
 
+#define MIN(x, y) ((x) < (y)) ? (x) : (y)
+#define MAX(x, y) ((x) > (y)) ? (x) : (y)
+
+template <typename T>
+void Swap(T& a, T& b) {
+    T temp = a;
+    a = b;
+    b = temp;
+}
+
 typedef enum LogLevel {
     LOG_LEVEL_FATAL = 0,
     LOG_LEVEL_ERROR = 1,

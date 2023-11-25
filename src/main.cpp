@@ -15,7 +15,8 @@ namespace Ace {
 
             void Initialise() override {
                 m_CubeMesh = Mesh::Load("assets/f22.obj");
-                m_CubeMesh->Position = { 0.0f, 0.0f, 5.0f };
+                m_CubeMesh->Position = { 0.0f, 0.0f, 6.0f };
+                m_CubeMesh->Rotation = { -0.2f, 0.3f, 0.0f };
                 m_CameraPosition = { 0.0f, 0.0f, 0.0f };
             }
 
@@ -24,8 +25,8 @@ namespace Ace {
             }
 
             void Update(f64 dt) override {
-                m_CubeMesh->Rotation.y += 0.5f * dt;
-                m_CubeMesh->Rotation.x += 0.5f * dt;
+                m_CubeMesh->Rotation.y += 0.3f * dt;
+                m_CubeMesh->Rotation.x += 0.3f * dt;
             }
 
             Vec2 ProjectOrthographic(Vec3 position) {
@@ -74,7 +75,7 @@ namespace Ace {
                     Vec3 normal = Cross(vec_ab, vec_ac);
                     Vec3 camera = m_CameraPosition - transformedVerts[0];
 
-                    if (Dot(normal, camera) < 0.0f) {
+                    if (Dot(normal, camera) <= 0.0f) {
                         continue;
                     }
 
@@ -93,7 +94,7 @@ namespace Ace {
 
                 for (auto& triangle : m_TrianglesToRender) {
                     
-                    GraphicsDevice::DrawTriangle(
+                    GraphicsDevice::DrawTriangleFill(
                         pixelBuffer,
                         0xFFFF0000,
                         triangle
@@ -113,6 +114,16 @@ namespace Ace {
                         );  
                     }
                 }
+
+                    // GraphicsDevice::DrawTriangleFill(
+                    //     pixelBuffer,
+                    //     0xFFFF0000,
+                    //     {{
+                    //         {400.0, 100.0},
+                    //         {200.0, 350.0},
+                    //         {300.0, 660.0}
+                    //     }}
+                    // );
             }
 
             void OnEvent() override {

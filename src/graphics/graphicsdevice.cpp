@@ -20,16 +20,17 @@ namespace Ace {
     }
 
     void GraphicsDevice::DrawLine(PixelBuffer& pixelBuffer, u32 color, Vec2 start, Vec2 end) {
-        i32 deltaX = (i32)(end.x - start.x);
-        i32 deltaY = (i32)(end.y - start.y);
+        i32 span = MAX(fabs(end.x - start.x), fabs(end.x - start.x));
+        f32 dx = (end.x - start.x) / (f32)span;
+        f32 dy = (end.y - start.y) / (f32)span;
 
-        f32 span =  fmax(fabs(static_cast<f32>(deltaX)), fabs(static_cast<f32>(deltaY)));
+        f32 x = start.x;
+        f32 y = start.y;
 
-        f32 dx = static_cast<f32>(deltaX) / span;
-        f32 dy = static_cast<f32>(deltaY) / span;
-
-        for (i32 i = 0; i < (i32)span; i++) {
-            pixelBuffer.SetPixel(round((f32)i*dx + start.x), round((f32)i*dy + start.y), color);
+        for (i32 i = 0; i < span; i++) {
+            pixelBuffer.SetPixel(x, y, color);
+            x += dx;
+            y += dy;
         }
     }
 
@@ -56,8 +57,83 @@ namespace Ace {
         );
     }
 
-    void GraphicsDevice::DrawTriangleFill(PixelBuffer& pixelBuffer, u32 color, const Triangle& triangle) {
+    void GraphicsDevice::DrawTriangleFill(PixelBuffer& pixelBuffer, u32 color, Triangle triangle) {
+        // Sort points top to bottom
+        
+        if (triangle.points[0].y > triangle.points[1].y) {
+            Swap<Vec2>(triangle.points[0], triangle.points[1]);
+        }
 
+        if (triangle.points[0].y > triangle.points[2].y) {
+            Swap<Vec2>(triangle.points[0], triangle.points[2]);
+        }
+
+        if (triangle.points[1].y > triangle.points[2].y) {
+            Swap<Vec2>(triangle.points[1], triangle.points[2]);
+        }
+
+        if (triangle.points[0].y == triangle.points[1].y) {
+            if (triangle.points[0].x > triangle.points[1].x) {
+                Swap<Vec2>(triangle.points[0], triangle.points[1]);
+            }
+            DrawTriangleFlatTop(
+                pixelBuffer, color, 
+                triangle.points[2].x, triangle.points[2].y, 
+                triangle.points[0].x, triangle.points[0].y, 
+                triangle.points[1].x, triangle.points[1].y
+            );
+            return;
+        } else if (triangle.points[1].y == triangle.points[2].y) {
+            if (triangle.points[1].x > triangle.points[2].x) {
+                Swap<Vec2>(triangle.points[1], triangle.points[2]);
+            }
+            DrawTriangleFlatBottom(
+                pixelBuffer, color, 
+                triangle.points[2].x, triangle.points[2].y, 
+                triangle.points[1].x, triangle.points[1].y,
+                triangle.points[0].x, triangle.points[0].y
+            );
+            return;
+        }
+
+        // Find the midpoint that splits triangle into flat top and flat bottom
+
+        f32 t = Unlerp(triangle.points[0].y, triangle.points[2].y, triangle.points[1].y);
+        f32 mx = Lerp(triangle.points[0].x, triangle.points[2].x, t);
+
+        Vec2 midpoint = {mx, triangle.points[1].y};
+
+        // Draw flat top and flat bottom.
+
+        if (midpoint.x > triangle.points[1].x) {
+            DrawTriangleFlatTop(
+                pixelBuffer, color, 
+                triangle.points[2].x, triangle.points[2].y, 
+                triangle.points[1].x, triangle.points[1].y, 
+                midpoint.x, midpoint.y
+            );
+
+            DrawTriangleFlatBottom(
+                pixelBuffer, color, 
+                triangle.points[0].x, triangle.points[0].y, 
+                triangle.points[1].x, triangle.points[1].y, 
+                midpoint.x, midpoint.y
+            );
+        } else {
+            DrawTriangleFlatTop(
+                pixelBuffer, color, 
+                triangle.points[2].x, triangle.points[2].y, 
+                midpoint.x, midpoint.y,
+                triangle.points[1].x, triangle.points[1].y
+            );
+
+            DrawTriangleFlatBottom(
+                pixelBuffer, color, 
+                triangle.points[0].x, triangle.points[0].y, 
+                midpoint.x, midpoint.y,
+                triangle.points[1].x, triangle.points[1].y
+            );
+        }
     }
 
     void GraphicsDevice::DrawRect(PixelBuffer& pixelBuffer, u32 color, const Rect& rect) {
@@ -83,12 +159,48 @@ namespace Ace {
     }
 
 
-    void GraphicsDevice::DrawTriangleFlatBottom(PixelBuffer& pixelBuffer, u32 color, Vec2 top, Vec2 bottomLeft, Vec2 bottomRight) {
-        
+    void GraphicsDevice::DrawTriangleFlatBottom(
+        PixelBuffer& pixelBuffer, 
+        u32 color, 
+        i32 topX, i32 topY,
+        i32 bottomLeftX, i32 bottomLeftY, 
+        i32 bottomRightX, i32 bottomRightY
+    ) {
+        f32 invSlopeLeft = (f32)(bottomLeftX - topX)/(bottomLeftY - topY);
+        f32 invSlopeRight = (f32)(bottomRightX - topX)/(bottomRightY - topY);
+
+        f32 startX = topX;
+        f32 endX = topX;
+
+        for (i32 y = topY; y <= bottomRightY; y++) {
+            for (i32 x = startX; x <= round(endX); x++) {
+                pixelBuffer.SetPixel(x, y, color);
+            }
+            startX += invSlopeLeft;
+            endX += invSlopeRight;
+        }
     }
 
-    void GraphicsDevice::DrawTriangleFlatTop(PixelBuffer& pixelBuffer, u32 color, Vec2 bottom, Vec2 topLeft, Vec2 topRight) {
+    void GraphicsDevice::DrawTriangleFlatTop(
+        PixelBuffer& pixelBuffer, 
+        u32 color,
+        i32 bottomX, i32 bottomY,
+        i32 topLeftX, i32 topLeftY, 
+        i32 topRightX, i32 topRightY 
+    ) {
+        f32 invSlopeLeft = (f32)(bottomX - topLeftX)/(bottomY - topLeftY);
+        f32 invSlopeRight = (f32)(bottomX - topRightX)/(bottomY - topRightY);
 
+        f32 startX = bottomX;
+        f32 endX = bottomX;
+
+        for (i32 y = bottomY; y >= topRightY; y--) {
+            for (i32 x = startX; x <= round(endX); x++) {
+                pixelBuffer.SetPixel(x, y, color);
+            }
+            startX -= invSlopeLeft;
+            endX -= invSlopeRight;
+        }
     }
 
 };
