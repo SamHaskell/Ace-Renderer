@@ -21,14 +21,14 @@ namespace Ace {
 
     void GraphicsDevice::DrawLine(PixelBuffer& pixelBuffer, u32 color, Vec2 start, Vec2 end) {
         i32 span = MAX(fabs(end.x - start.x), fabs(end.x - start.x));
-        f32 dx = (end.x - start.x) / (f32)span;
-        f32 dy = (end.y - start.y) / (f32)span;
+        f32 dx = (f32)(end.x - start.x) / span;
+        f32 dy = (f32)(end.y - start.y) / span;
 
         f32 x = start.x;
         f32 y = start.y;
 
         for (i32 i = 0; i < span; i++) {
-            pixelBuffer.SetPixel(x, y, color);
+            pixelBuffer.SetPixel(roundf(x), roundf(y), color);
             x += dx;
             y += dy;
         }

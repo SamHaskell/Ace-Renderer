@@ -1,6 +1,9 @@
 #include "core/app.hpp"
 
 #include "SDL.h"
+#include "imgui.h"
+#include "backends/imgui_impl_sdlrenderer2.h"
+#include "backends/imgui_impl_sdl2.h"
 #include <chrono>
 
 // TODO: Platform abstractions.
@@ -26,7 +29,12 @@ namespace Ace {
         i32 windowWidth = displayMode.w;
         i32 windowHeight = displayMode.h;
 
-        u32 flags = SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_BORDERLESS;
+        // windowWidth = 800;
+        // windowHeight = 600;
+
+        u32 flags = 0; 
+        // flags |= SDL_WINDOW_ALLOW_HIGHDPI; 
+        flags |= SDL_WINDOW_BORDERLESS;
 
         m_Window = SDL_CreateWindow(
             NULL,
@@ -63,6 +71,20 @@ namespace Ace {
             windowWidth, windowHeight
         );
 
+        /*
+            Initialise ImGui.
+        */
+
+        IMGUI_CHECKVERSION();
+        ImGui::CreateContext();
+        ImGuiIO &io = ImGui::GetIO();
+
+
+        ImGui_ImplSDL2_InitForSDLRenderer(m_Window, m_Renderer);
+        ImGui_ImplSDLRenderer2_Init(m_Renderer);
+
+        ImGui::StyleColorsDark();
+
         Initialise();
 
         /*
@@ -97,6 +119,7 @@ namespace Ace {
         {
             SDL_Event e;
             while (SDL_PollEvent(&e)) {
+                ImGui_ImplSDL2_ProcessEvent(&e);
                 switch (e.type) {
                     case SDL_QUIT:
                         m_Running = false;
@@ -141,6 +164,15 @@ namespace Ace {
                 NULL,
                 NULL
             );
+
+            ImGui_ImplSDL2_NewFrame();
+            ImGui_ImplSDLRenderer2_NewFrame();
+            ImGui::NewFrame();
+
+            ImGui::ShowDemoWindow();
+
+            ImGui::Render();
+            ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData());
 
             SDL_RenderPresent(m_Renderer);
         }

@@ -96,7 +96,7 @@ namespace Ace {
                     
                     GraphicsDevice::DrawTriangleFill(
                         pixelBuffer,
-                        0xFFFF0000,
+                        0xFF777777,
                         triangle
                     );
                     
@@ -114,16 +114,10 @@ namespace Ace {
                         );  
                     }
                 }
+            }
 
-                    // GraphicsDevice::DrawTriangleFill(
-                    //     pixelBuffer,
-                    //     0xFFFF0000,
-                    //     {{
-                    //         {400.0, 100.0},
-                    //         {200.0, 350.0},
-                    //         {300.0, 660.0}
-                    //     }}
-                    // );
+            void DrawGUI() override {
+                
             }
 
             void OnEvent() override {

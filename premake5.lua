@@ -18,10 +18,19 @@ workspace "Renderer"
         "src/**.c",
         "src/**.hpp",
         "src/**.cpp",
+
+        -- imgui
+        "vendor/imgui/*.h",
+        "vendor/imgui/*.cpp",
+        "vendor/imgui/backends/imgui_impl_sdlrenderer2.h",
+        "vendor/imgui/backends/imgui_impl_sdlrenderer2.cpp",
+        "vendor/imgui/backends/imgui_impl_sdl2.h",
+        "vendor/imgui/backends/imgui_impl_sdl2.cpp",
     }
 
     includedirs {
         "src",
+        "vendor/imgui"
 
     }
 

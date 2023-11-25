@@ -37,6 +37,7 @@ namespace Ace {
             virtual void Shutdown() = 0;
             virtual void Update(f64 dt) = 0;
             virtual void Render(PixelBuffer& pixelBuffer) = 0;
+            virtual void DrawGUI() = 0;
             virtual void OnEvent() = 0;
 
         private:
