@@ -5,6 +5,7 @@
 #include "graphics/triangle.hpp"
 
 #include <vector>
+#include <string>
 
 #define CUBE_VERT_COUNT 8
 #define CUBE_FACE_COUNT 12

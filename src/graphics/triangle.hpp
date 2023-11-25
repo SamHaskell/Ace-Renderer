@@ -12,5 +12,6 @@ namespace Ace {
 
     struct Triangle {
         Vec2 points[3];
+        Vec2 Midpoint();
     };
 }

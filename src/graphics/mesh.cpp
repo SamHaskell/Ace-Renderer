@@ -1,5 +1,7 @@
 #include "graphics/mesh.hpp"
 
+#include <stdio.h>
+
 namespace Ace {
     std::vector<Vec3> g_CubeVertices = {
         {-1.0, -1.0, -1.0},
@@ -35,6 +37,46 @@ namespace Ace {
     }
     
     Mesh* Mesh::Load(const std::string& path) {
+        Mesh* mesh = new Mesh();
 
+        FILE* file = fopen(path.c_str(), "r");
+        if (file == NULL) {
+            ACE_ERROR("Failed to load mesh %s from disk", path.c_str());
+            return nullptr;
+        }
+
+        u8 line[1024];
+        while(fgets(line, 1024, file)) {
+            if (strncmp(line, "v ", 2) == 0) {
+                // We have a vertex!
+                Vec3 vert;
+                sscanf(line, "v %f %f %f", &vert.x, &vert.y, &vert.z);
+                mesh->Vertices.push_back(vert);
+            }
+
+            if (strncmp(line, "f ", 2) == 0) {
+                // We have a face!
+                u32 indices[9];
+                sscanf(
+                    line, 
+                    "f %i/%i/%i %i/%i/%i %i/%i/%i",
+                    &indices[0], &indices[1], &indices[2],
+                    &indices[3], &indices[4], &indices[5],
+                    &indices[6], &indices[7], &indices[8]
+                );
+                
+                Face vertFace = {
+                    indices[0] - 1,
+                    indices[3] - 1,
+                    indices[6] - 1
+                };
+
+                mesh->Faces.push_back(vertFace);
+            }
+        }
+
+        fclose(file);
+
+        return mesh;
     }
 };

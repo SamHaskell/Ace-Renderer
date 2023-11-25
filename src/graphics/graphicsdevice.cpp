@@ -1,4 +1,5 @@
 #include "graphics/graphicsdevice.hpp"
+#include "graphics/triangle.hpp"
 #include "maths/maths.hpp"
 
 namespace Ace {
@@ -22,14 +23,41 @@ namespace Ace {
         i32 deltaX = (i32)(end.x - start.x);
         i32 deltaY = (i32)(end.y - start.y);
 
-        f32 span =  fmax(static_cast<f32>(deltaX), static_cast<f32>(deltaY));
+        f32 span =  fmax(fabs(static_cast<f32>(deltaX)), fabs(static_cast<f32>(deltaY)));
 
-        f32 dx = deltaX / span;
-        f32 dy = deltaY / span;
+        f32 dx = static_cast<f32>(deltaX) / span;
+        f32 dy = static_cast<f32>(deltaY) / span;
 
         for (i32 i = 0; i < (i32)span; i++) {
-            pixelBuffer.SetPixel(round(i*dx + start.x), round(i*dy + start.y), color);
+            pixelBuffer.SetPixel(round((f32)i*dx + start.x), round((f32)i*dy + start.y), color);
         }
+    }
+
+    void GraphicsDevice::DrawTriangle(PixelBuffer& pixelBuffer, u32 color, const Triangle& triangle) {
+        DrawLine(
+            pixelBuffer,
+            color,
+            triangle.points[0],
+            triangle.points[1]
+        );
+
+        DrawLine(
+            pixelBuffer,
+            color,
+            triangle.points[1],
+            triangle.points[2]
+        );
+
+        DrawLine(
+            pixelBuffer,
+            color,
+            triangle.points[2],
+            triangle.points[0]
+        );
+    }
+
+    void GraphicsDevice::DrawTriangleFill(PixelBuffer& pixelBuffer, u32 color, const Triangle& triangle) {
+
     }
 
     void GraphicsDevice::DrawRect(PixelBuffer& pixelBuffer, u32 color, const Rect& rect) {
@@ -53,4 +81,14 @@ namespace Ace {
             }
         }
     }
+
+
+    void GraphicsDevice::DrawTriangleFlatBottom(PixelBuffer& pixelBuffer, u32 color, Vec2 top, Vec2 bottomLeft, Vec2 bottomRight) {
+        
+    }
+
+    void GraphicsDevice::DrawTriangleFlatTop(PixelBuffer& pixelBuffer, u32 color, Vec2 bottom, Vec2 topLeft, Vec2 topRight) {
+
+    }
+
 };
