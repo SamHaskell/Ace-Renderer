@@ -9,6 +9,8 @@
 
 #include "imgui.h"
 
+#include <algorithm>
+
 namespace Ace {
     struct RenderFlags {
         bool WireFrame = false;
@@ -92,14 +94,29 @@ namespace Ace {
                     transformedVerts[1] -= m_CameraPosition;
                     transformedVerts[2] -= m_CameraPosition;
 
+                    // Get depth-value for each triangle
+
+                    f32 depth = (transformedVerts[0].z + transformedVerts[1].z + transformedVerts[2].z) / 3.0f;
+
                     // Project
 
-                    m_TrianglesToRender.push_back({
-                        ProjectPerspective(transformedVerts[0]) * 920 + screenCenter,
-                        ProjectPerspective(transformedVerts[1]) * 920 + screenCenter,
-                        ProjectPerspective(transformedVerts[2]) * 920 + screenCenter
-                    });
+                    m_TrianglesToRender.push_back(
+                        {
+                            .points = {
+                                ProjectPerspective(transformedVerts[0]) * 920 + screenCenter,
+                                ProjectPerspective(transformedVerts[1]) * 920 + screenCenter,
+                                ProjectPerspective(transformedVerts[2]) * 920 + screenCenter
+                            },
+                            .depth = depth
+                        }
+                    );
                 }
+
+                // Sort triangles by depth (NOTE: std::sort for now, optimise later)
+
+                std::sort(m_TrianglesToRender.begin(), m_TrianglesToRender.end(), [] (Triangle a, Triangle b) {
+                    return a.depth > b.depth;
+                });
 
                 for (auto& triangle : m_TrianglesToRender) {
                     if (m_RenderFlags.Shaded) {

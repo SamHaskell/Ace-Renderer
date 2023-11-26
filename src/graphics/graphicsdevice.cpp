@@ -20,7 +20,7 @@ namespace Ace {
     }
 
     void GraphicsDevice::DrawLine(PixelBuffer& pixelBuffer, u32 color, Vec2 start, Vec2 end) {
-        i32 span = MAX(fabs(end.x - start.x), fabs(end.x - start.x));
+        i32 span = MAX(fabs(end.x - start.x), fabs(end.y - start.y));
         f32 dx = (f32)(end.x - start.x) / span;
         f32 dy = (f32)(end.y - start.y) / span;
 
