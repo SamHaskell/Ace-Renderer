@@ -26,9 +26,9 @@ namespace Ace {
 
             void Initialise() override {
                 m_CubeMesh = Mesh::Load("assets/f22.obj");
-                m_CubeMesh->Position = { 0.0f, 0.0f, 6.0f };
-                m_CubeMesh->Rotation = { -0.2f, 0.3f, 0.0f };
-                m_CameraPosition = { 0.0f, 0.0f, 0.0f };
+                m_CubeMesh->Position = { 0.0f, 0.0f, 0.0f };
+                m_CubeMesh->Rotation = { 0.0f, 0.0f, 0.0f };
+                m_CameraPosition = { 0.0f, 0.0f, -5.0f };
             }
 
             void Shutdown() override {
@@ -36,8 +36,7 @@ namespace Ace {
             }
 
             void Update(f64 dt) override {
-                m_CubeMesh->Rotation.y += 0.3f * dt;
-                m_CubeMesh->Rotation.x += 0.3f * dt;
+                m_CubeMesh->Rotation += {20.0f * (f32)dt, 30.0f * (f32)dt, 40.0f * (f32)dt};
             }
 
             Vec2 ProjectOrthographic(Vec3 position) {
@@ -47,7 +46,7 @@ namespace Ace {
                 };
             }
 
-            Vec2 ProjectPerspective(Vec3 position) {
+            Vec2 ProjectPerspective(Vec4 position) {
                 return {
                     position.x / position.z,
                     position.y / position.z
@@ -72,27 +71,31 @@ namespace Ace {
 
                     // Transform
 
-                    Vec3 transformedVerts[3] = {
-                        RotateZ(RotateY(RotateX(faceVerts[0], m_CubeMesh->Rotation.x), m_CubeMesh->Rotation.y), m_CubeMesh->Rotation.z) + m_CubeMesh->Position,
-                        RotateZ(RotateY(RotateX(faceVerts[1], m_CubeMesh->Rotation.x), m_CubeMesh->Rotation.y), m_CubeMesh->Rotation.z) + m_CubeMesh->Position,
-                        RotateZ(RotateY(RotateX(faceVerts[2], m_CubeMesh->Rotation.x), m_CubeMesh->Rotation.y), m_CubeMesh->Rotation.z) + m_CubeMesh->Position
+                    Mat4 model = Mat4::Translation(m_CubeMesh->Position) * Mat4::Rotation(m_CubeMesh->Rotation) * Mat4::Scale(m_CubeMesh->Scale);
+
+                    Vec4 transformedVerts[3] = {
+                        model * faceVerts[0],
+                        model * faceVerts[1],
+                        model * faceVerts[2]
                     };
 
                     // Cull
 
                     if (m_RenderFlags.Culling) {
-                        Vec3 vec_ab = transformedVerts[1] - transformedVerts[0];
-                        Vec3 vec_ac = transformedVerts[2] - transformedVerts[0];
+                        Vec3 vec_ab = Vec3(transformedVerts[1]) - Vec3(transformedVerts[0]);
+                        Vec3 vec_ac = Vec3(transformedVerts[2]) - Vec3(transformedVerts[0]);
                         Vec3 normal = Cross(vec_ab, vec_ac);
-                        Vec3 camera = m_CameraPosition - transformedVerts[0];
-                        if (Dot(normal, camera) <= 0.0f) {
+                        Vec3 camera = m_CameraPosition - Vec3(transformedVerts[0]);
+                        if (Dot(normal, camera) < 0.0f) {
                             continue;
                         }
                     }
 
-                    transformedVerts[0] -= m_CameraPosition;
-                    transformedVerts[1] -= m_CameraPosition;
-                    transformedVerts[2] -= m_CameraPosition;
+                    Mat4 view = Mat4::Translation( - m_CameraPosition);
+
+                    transformedVerts[0] = view * transformedVerts[0];
+                    transformedVerts[1] = view * transformedVerts[1];
+                    transformedVerts[2] = view * transformedVerts[2];
 
                     // Get depth-value for each triangle
 
@@ -100,12 +103,20 @@ namespace Ace {
 
                     // Project
 
+                    Mat4 proj = Mat4::Perspective(60.0f, (f32)pixelBuffer.Width / (f32)pixelBuffer.Height, 0.1f, 100.0f);
+
+                    Vec4 projectedVerts[3] = {
+                        proj * transformedVerts[0],
+                        proj * transformedVerts[1],
+                        proj * transformedVerts[2]
+                    };
+
                     m_TrianglesToRender.push_back(
                         {
                             .points = {
-                                ProjectPerspective(transformedVerts[0]) * 920 + screenCenter,
-                                ProjectPerspective(transformedVerts[1]) * 920 + screenCenter,
-                                ProjectPerspective(transformedVerts[2]) * 920 + screenCenter
+                                { (projectedVerts[0].x / projectedVerts[0].w + 1.0f) * ((f32)pixelBuffer.Width / 2.0f), (projectedVerts[0].y / projectedVerts[0].w + 1.0f) * ((f32)pixelBuffer.Height / 2.0f) },
+                                { (projectedVerts[1].x / projectedVerts[1].w + 1.0f) * ((f32)pixelBuffer.Width / 2.0f), (projectedVerts[1].y / projectedVerts[1].w + 1.0f) * ((f32)pixelBuffer.Height / 2.0f) },
+                                { (projectedVerts[2].x / projectedVerts[2].w + 1.0f) * ((f32)pixelBuffer.Width / 2.0f), (projectedVerts[2].y / projectedVerts[2].w + 1.0f) * ((f32)pixelBuffer.Height / 2.0f) }
                             },
                             .depth = depth
                         }

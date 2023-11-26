@@ -50,47 +50,49 @@ namespace Ace {
     }
 
     Vec3 Hadamard(const Vec3& u, const Vec3& v) {
-        return {u.x*v.x, u.y*v.y, u.z*v.z};
+        return Vec3(u.x*v.x, u.y*v.y, u.z*v.z);
     }
 
     Vec3 Lerp(const Vec3& u, const Vec3& v, f32 t) {
-        return { Lerp(u.x, v.x, t), Lerp(u.y, v.y, t), Lerp(u.z, v.z, t) };
+        return Vec3( Lerp(u.x, v.x, t), Lerp(u.y, v.y, t), Lerp(u.z, v.z, t) );
     }
 
     Vec3 LerpClamped(const Vec3& u, const Vec3& v, f32 t) {
         f32 clamped = Clamp(t, 0.0f, 1.0f);
-        return { Lerp(u.x, v.x, clamped), Lerp(u.y, v.y, clamped), Lerp(u.z, v.z, clamped) };
+        return Vec3( Lerp(u.x, v.x, clamped), Lerp(u.y, v.y, clamped), Lerp(u.z, v.z, clamped) );
     }
 
     Vec3 Cross(const Vec3& u, const Vec3& v) {
-        return {
+        return Vec3(
             u.y*v.z - u.z*v.y,
             u.z*v.x - u.x*v.z,
             u.x*v.y - u.y*v.x
-        };
+        );
     }
 
     Vec3 RotateX(const Vec3& v, f32 angle) {
-        return {
-            .x = v.x,
-            .y = v.y * cos(angle) - v.z * sin(angle),
-            .z = v.y * sin(angle) + v.z * cos(angle)
-        };
+        return Vec3(
+            v.x,
+            v.y * cos(angle) - v.z * sin(angle),
+            v.y * sin(angle) + v.z * cos(angle)
+        );
     }
 
     Vec3 RotateY(const Vec3& v, f32 angle) {
-        return {
-            .x = v.x * cos(angle) - v.z * sin(angle),
-            .y = v.y,
-            .z = v.x * sin(angle) + v.z * cos(angle)
-        };
+        return Vec3(
+            v.x * cos(angle) - v.z * sin(angle),
+            v.y,
+            v.x * sin(angle) + v.z * cos(angle)
+        );
     }
 
     Vec3 RotateZ(const Vec3& v, f32 angle) {
-        return {
-            .x = v.x * cos(angle) - v.y * sin(angle),
-            .y = v.x * sin(angle) + v.y * cos(angle),
-            .z = v.z
-        };
+        return Vec3(
+            v.x * cos(angle) - v.y * sin(angle),
+            v.x * sin(angle) + v.y * cos(angle),
+            v.z
+        );
     }
+
+    Vec3::Vec3(Vec4 vec) : x(vec.x), y(vec.y), z(vec.z) {}
 }

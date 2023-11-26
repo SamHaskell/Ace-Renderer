@@ -48,6 +48,13 @@ STATIC_ASSERT(sizeof(f64) == 8, "Expected f64 to be 8 byte(s).");
 #define MIN(x, y) ((x) < (y)) ? (x) : (y)
 #define MAX(x, y) ((x) > (y)) ? (x) : (y)
 
+constexpr f64 PI = 3.14159265358979323846264;
+constexpr f64 TAU = 2 * PI;
+constexpr f64 EULER = 2.71828182845904523536028;
+
+constexpr f32 DEG2RAD = (f32)PI / 180.0f;
+constexpr f32 RAD2DEG = 180.0f / (f32)PI;
+
 template <typename T>
 void Swap(T& a, T& b) {
     T temp = a;

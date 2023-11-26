@@ -3,22 +3,29 @@
 #include "core/defines.hpp"
 
 namespace Ace {
+    struct Vec2;
+    struct Vec3;
+    struct Vec4;
+
     struct Vec2 {
+        Vec2() = default;
+        Vec2(f32 x, f32 y) : x(x), y(y) {}
+
         f32 x;
         f32 y;
 
-        void operator*=(const f32 val) { x *= val; y *= val; }
-        void operator*=(const Vec2& v) { x *= v.x; y *= v.y; }
-        Vec2 operator* (const f32 val) const { return { x * val, y * val }; }
-        Vec2 operator* (const Vec2& v) const { return { x * v.x, y * v.y }; }
-        void operator+=(const f32 val) { x += val; y += val; }
-        void operator+=(const Vec2& v) { x += v.x; y += v.y; }
-        Vec2 operator+ (const f32 val) const { return { x + val, y + val }; }
-        Vec2 operator+ (const Vec2& v) const { return { x + v.x, y + v.y }; }
-        void operator-=(const f32 val) { x -= val; y -= val; }
-        void operator-=(const Vec2& v) { x -= v.x; y -= v.y; }
-        Vec2 operator- (const f32 val) const { return { x - val, y - val }; }
-        Vec2 operator- (const Vec2& v) const { return { x - v.x, y - v.y }; }
+        inline void operator*=(const f32 val) { x *= val; y *= val; }
+        inline void operator*=(const Vec2& v) { x *= v.x; y *= v.y; }
+        inline Vec2 operator* (const f32 val) const { return { x * val, y * val }; }
+        inline Vec2 operator* (const Vec2& v) const { return { x * v.x, y * v.y }; }
+        inline void operator+=(const f32 val) { x += val; y += val; }
+        inline void operator+=(const Vec2& v) { x += v.x; y += v.y; }
+        inline Vec2 operator+ (const f32 val) const { return { x + val, y + val }; }
+        inline Vec2 operator+ (const Vec2& v) const { return { x + v.x, y + v.y }; }
+        inline void operator-=(const f32 val) { x -= val; y -= val; }
+        inline void operator-=(const Vec2& v) { x -= v.x; y -= v.y; }
+        inline Vec2 operator- (const f32 val) const { return { x - val, y - val }; }
+        inline Vec2 operator- (const Vec2& v) const { return { x - v.x, y - v.y }; }
         
         void AddScaledVector(const Vec2& vec, f32 scale) {
             x += vec.x * scale;
@@ -53,22 +60,26 @@ namespace Ace {
     Vec2 LerpClamped(const Vec2& u, const Vec2& v, f32 t);
 
     struct Vec3 {
+        Vec3() = default;
+        Vec3(f32 x, f32 y, f32 z) : x(x), y(y), z(z) {}
+        Vec3(Vec4 vec);
+
         f32 x;
         f32 y;
         f32 z;
 
         void operator*=(const f32 val) { x *= val; y *= val; z *= val; }
         void operator*=(const Vec3& v) { x *= v.x; y *= v.y; z *= v.z; }
-        Vec3 operator* (const f32 val) const { return { x * val, y * val, z * val }; }
-        Vec3 operator* (const Vec3& v) const { return { x * v.x, y * v.y, z * v.z }; }
+        Vec3 operator* (const f32 val) const { return Vec3( x * val, y * val, z * val ); }
+        Vec3 operator* (const Vec3& v) const { return Vec3( x * v.x, y * v.y, z * v.z ); }
         void operator+=(const f32 val) { x += val; y += val; z += val; }
         void operator+=(const Vec3& v) { x += v.x; y += v.y; z += v.z; }
-        Vec3 operator+ (const f32 val) const { return { x + val, y + val, z + val }; }
-        Vec3 operator+ (const Vec3& v) const { return { x + v.x, y + v.y, z + v.z }; }
+        Vec3 operator+ (const f32 val) const { return Vec3( x + val, y + val, z + val ); }
+        Vec3 operator+ (const Vec3& v) const { return Vec3( x + v.x, y + v.y, z + v.z ); }
         void operator-=(const f32 val) { x -= val; y -= val; z -= val; }
         void operator-=(const Vec3& v) { x -= v.x; y -= v.y; z -= v.z; }
-        Vec3 operator- (const f32 val) const { return { x - val, y - val, z - val }; }
-        Vec3 operator- (const Vec3& v) const { return { x - v.x, y - v.y, z - v.z }; }
+        Vec3 operator- (const f32 val) const { return Vec3( x - val, y - val, z - val ); }
+        Vec3 operator- (const Vec3& v) const { return Vec3( x - v.x, y - v.y, z - v.z ); }
 
         void AddScaledVector(const Vec3& vec, f32 scale) {
             x += vec.x * scale;
@@ -89,15 +100,15 @@ namespace Ace {
             z *= inv;
         }
 
-        static Vec3 Up() { return {0.0, 1.0, 0.0}; }
-        static Vec3 Down() { return {0.0, -1.0, 0.0}; }
-        static Vec3 Right() { return {1.0, 0.0, 0.0}; }
-        static Vec3 Left() { return {-1.0, 0.0, 0.0}; }
-        static Vec3 Forward() { return {0.0, 0.0, 1.0}; }
-        static Vec3 Back() { return {0.0, 0.0, -1.0}; }
+        static Vec3 Up() { return Vec3(0.0, 1.0, 0.0); }
+        static Vec3 Down() { return Vec3(0.0, -1.0, 0.0); }
+        static Vec3 Right() { return Vec3(1.0, 0.0, 0.0); }
+        static Vec3 Left() { return Vec3(-1.0, 0.0, 0.0); }
+        static Vec3 Forward() { return Vec3(0.0, 0.0, 1.0); }
+        static Vec3 Back() { return Vec3(0.0, 0.0, -1.0); }
     };
 
-    inline Vec3 operator- (const Vec3& v) { return {-v.x, -v.y, -v.z}; }
+    inline Vec3 operator- (const Vec3& v) { return Vec3(-v.x, -v.y, -v.z); }
 
     f32 SqrMagnitude(const Vec3& v);
     f32 Magnitude(const Vec3& v);

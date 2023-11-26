@@ -3,13 +3,6 @@
 #include "core/defines.hpp"
 
 namespace Ace {
-    constexpr f64 PI = 3.14159265358979323846264;
-    constexpr f64 TAU = 2 * PI;
-    constexpr f64 EULER = 2.71828182845904523536028;
-
-    constexpr f32 DEG2RAD = (f32)PI / 180.0f;
-    constexpr f32 RAD2DEG = 180.0f / (f32)PI;
-
     #define EvalPrintFloat(x) printf("%s = %f\n", #x, (f32)(x))
 
     inline f32 Clamp(f32 x, f32 min, f32 max) {
