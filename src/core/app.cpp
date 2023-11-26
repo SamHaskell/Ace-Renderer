@@ -169,7 +169,7 @@ namespace Ace {
             ImGui_ImplSDLRenderer2_NewFrame();
             ImGui::NewFrame();
 
-            ImGui::ShowDemoWindow();
+            DrawGUI();
 
             ImGui::Render();
             ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData());
