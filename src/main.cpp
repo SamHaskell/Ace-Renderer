@@ -6,12 +6,17 @@
 #include "maths/maths.hpp"
 #include "graphics/graphicsdevice.hpp"
 #include "graphics/mesh.hpp"
+#include "graphics/color.hpp"
 
 #include "imgui.h"
 
 #include <algorithm>
 
 namespace Ace {
+    struct DirectionalLight {
+        Vec3 Direction;
+    };
+
     struct RenderFlags {
         bool WireFrame = false;
         bool Shaded = true;
@@ -29,6 +34,8 @@ namespace Ace {
                 m_CubeMesh->Position = { 0.0f, 0.0f, 0.0f };
                 m_CubeMesh->Rotation = { 0.0f, 0.0f, 0.0f };
                 m_CameraPosition = { 0.0f, 0.0f, -5.0f };
+
+                m_DirectionalLight.Direction = {1.0f, -1.0f, 1.0f};
             }
 
             void Shutdown() override {
@@ -59,7 +66,7 @@ namespace Ace {
                 m_TrianglesToRender.clear();
 
                 pixelBuffer.Clear(0xFF111111);
-                GraphicsDevice::DrawGrid(pixelBuffer, 0xFF333333, 64, 64);
+                GraphicsDevice::DrawGrid(pixelBuffer, {0.4f, 0.4f, 0.4f, 1.0f}, 64, 64);
 
                 for (i32 i = 0; i < m_CubeMesh->Faces.size(); i++) {
                     Face face = m_CubeMesh->Faces[i];
@@ -133,7 +140,7 @@ namespace Ace {
                     if (m_RenderFlags.Shaded) {
                         GraphicsDevice::DrawTriangleFill(
                             pixelBuffer,
-                            0xFF777777,
+                            {0.6, 0.6, 0.6, 1.0},
                             triangle
                         );
                     }
@@ -141,7 +148,7 @@ namespace Ace {
                     if (m_RenderFlags.WireFrame) {
                         GraphicsDevice::DrawTriangle(
                             pixelBuffer,
-                            0xFF000000,
+                            {0.0, 1.0, 0.0, 1.0},
                             triangle
                         );
                     }
@@ -156,7 +163,7 @@ namespace Ace {
                             };
                             GraphicsDevice::DrawRectFill(
                                 pixelBuffer,
-                                0xFFFFFF00,
+                                {1.0, 1.0, 0.0, 1.0},
                                 rect
                             );  
                         }
@@ -182,6 +189,7 @@ namespace Ace {
             std::vector<Triangle> m_TrianglesToRender;
             Mesh* m_CubeMesh;
             RenderFlags m_RenderFlags;
+            DirectionalLight m_DirectionalLight;
     };
 }
 

@@ -1,25 +1,30 @@
 #include "graphics/graphicsdevice.hpp"
 #include "graphics/triangle.hpp"
+#include "graphics/color.hpp"
 #include "maths/maths.hpp"
 
 namespace Ace {
-    void GraphicsDevice::DrawGrid(PixelBuffer& pixelBuffer, u32 color, u32 xStep, u32 yStep) {
+    void GraphicsDevice::DrawGrid(PixelBuffer& pixelBuffer, Color color, u32 xStep, u32 yStep) {
+        u32 uColor = color.U32_ARGB();
+
         for (i32 i = 0; i < pixelBuffer.Width / 2; i+=xStep) {
             for (i32 j = 0; j < pixelBuffer.Height; j++) {
-                pixelBuffer.SetPixel(pixelBuffer.Width / 2 + i, j, color);
-                pixelBuffer.SetPixel(pixelBuffer.Width / 2 - i, j, color);
+                pixelBuffer.SetPixel(pixelBuffer.Width / 2 + i, j, uColor);
+                pixelBuffer.SetPixel(pixelBuffer.Width / 2 - i, j, uColor);
             }
         }
 
         for (i32 i = 0; i < pixelBuffer.Width; i++) {
             for (i32 j = 0; j < pixelBuffer.Height / 2; j+=yStep) {
-                pixelBuffer.SetPixel(i, pixelBuffer.Height / 2 + j, color);
-                pixelBuffer.SetPixel(i, pixelBuffer.Height / 2 - j, color);
+                pixelBuffer.SetPixel(i, pixelBuffer.Height / 2 + j, uColor);
+                pixelBuffer.SetPixel(i, pixelBuffer.Height / 2 - j, uColor);
             }
         }
     }
 
-    void GraphicsDevice::DrawLine(PixelBuffer& pixelBuffer, u32 color, Vec2 start, Vec2 end) {
+    void GraphicsDevice::DrawLine(PixelBuffer& pixelBuffer, Color color, Vec2 start, Vec2 end) {
+        u32 uColor = color.U32_ARGB();
+
         i32 span = MAX(fabs(end.x - start.x), fabs(end.y - start.y));
         f32 dx = (f32)(end.x - start.x) / span;
         f32 dy = (f32)(end.y - start.y) / span;
@@ -28,13 +33,13 @@ namespace Ace {
         f32 y = start.y;
 
         for (i32 i = 0; i < span; i++) {
-            pixelBuffer.SetPixel(roundf(x), roundf(y), color);
+            pixelBuffer.SetPixel(roundf(x), roundf(y), uColor);
             x += dx;
             y += dy;
         }
     }
 
-    void GraphicsDevice::DrawTriangle(PixelBuffer& pixelBuffer, u32 color, const Triangle& triangle) {
+    void GraphicsDevice::DrawTriangle(PixelBuffer& pixelBuffer, Color color, const Triangle& triangle) {
         DrawLine(
             pixelBuffer,
             color,
@@ -57,7 +62,7 @@ namespace Ace {
         );
     }
 
-    void GraphicsDevice::DrawTriangleFill(PixelBuffer& pixelBuffer, u32 color, Triangle triangle) {
+    void GraphicsDevice::DrawTriangleFill(PixelBuffer& pixelBuffer, Color color, Triangle triangle) {
         // Sort points top to bottom
         
         if (triangle.points[0].y > triangle.points[1].y) {
@@ -136,24 +141,27 @@ namespace Ace {
         }
     }
 
-    void GraphicsDevice::DrawRect(PixelBuffer& pixelBuffer, u32 color, const Rect& rect) {
+    void GraphicsDevice::DrawRect(PixelBuffer& pixelBuffer, Color color, const Rect& rect) {
+        u32 uColor = color.U32_ARGB();
+
         if ((rect.w < 0) || (rect.h < 0)) {
             return;
         }
         for (i32 i = 0; i < rect.w; i++) {
-            pixelBuffer.SetPixel(i + rect.x, rect.y, color);
-            pixelBuffer.SetPixel(i + rect.x, rect.y + rect.h, color);
+            pixelBuffer.SetPixel(i + rect.x, rect.y, uColor);
+            pixelBuffer.SetPixel(i + rect.x, rect.y + rect.h, uColor);
         }
         for (i32 j = 0; j < rect.h; j++) {
-            pixelBuffer.SetPixel(rect.x, rect.y, color);
-            pixelBuffer.SetPixel(rect.x + rect.w, rect.y, color);
+            pixelBuffer.SetPixel(rect.x, rect.y, uColor);
+            pixelBuffer.SetPixel(rect.x + rect.w, rect.y, uColor);
         }
     }
 
-    void GraphicsDevice::DrawRectFill(PixelBuffer& pixelBuffer, u32 color, const Rect& rect) {
+    void GraphicsDevice::DrawRectFill(PixelBuffer& pixelBuffer, Color color, const Rect& rect) {
+        u32 uColor = color.U32_ARGB();
         for (i32 i = 0; i < rect.w; i++) {
             for (i32 j = 0; j < rect.h; j++) {
-                pixelBuffer.SetPixel(i + rect.x, j + rect.y, color);
+                pixelBuffer.SetPixel(i + rect.x, j + rect.y, uColor);
             }
         }
     }
@@ -161,11 +169,13 @@ namespace Ace {
 
     void GraphicsDevice::DrawTriangleFlatBottom(
         PixelBuffer& pixelBuffer, 
-        u32 color, 
+        Color color, 
         i32 topX, i32 topY,
         i32 bottomLeftX, i32 bottomLeftY, 
         i32 bottomRightX, i32 bottomRightY
     ) {
+        u32 uColor = color.U32_ARGB();
+
         f32 invSlopeLeft = (f32)(bottomLeftX - topX)/(bottomLeftY - topY);
         f32 invSlopeRight = (f32)(bottomRightX - topX)/(bottomRightY - topY);
 
@@ -174,7 +184,7 @@ namespace Ace {
 
         for (i32 y = topY; y <= bottomRightY; y++) {
             for (i32 x = startX; x <= round(endX); x++) {
-                pixelBuffer.SetPixel(x, y, color);
+                pixelBuffer.SetPixel(x, y, uColor);
             }
             startX += invSlopeLeft;
             endX += invSlopeRight;
@@ -183,11 +193,13 @@ namespace Ace {
 
     void GraphicsDevice::DrawTriangleFlatTop(
         PixelBuffer& pixelBuffer, 
-        u32 color,
+        Color color,
         i32 bottomX, i32 bottomY,
         i32 topLeftX, i32 topLeftY, 
         i32 topRightX, i32 topRightY 
     ) {
+        u32 uColor = color.U32_ARGB();
+
         f32 invSlopeLeft = (f32)(bottomX - topLeftX)/(bottomY - topLeftY);
         f32 invSlopeRight = (f32)(bottomX - topRightX)/(bottomY - topRightY);
 
@@ -196,7 +208,7 @@ namespace Ace {
 
         for (i32 y = bottomY; y >= topRightY; y--) {
             for (i32 x = startX; x <= round(endX); x++) {
-                pixelBuffer.SetPixel(x, y, color);
+                pixelBuffer.SetPixel(x, y, uColor);
             }
             startX -= invSlopeLeft;
             endX -= invSlopeRight;

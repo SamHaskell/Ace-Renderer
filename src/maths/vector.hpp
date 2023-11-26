@@ -124,6 +124,9 @@ namespace Ace {
     Vec3 RotateZ(const Vec3& v, f32 angle);
 
     struct Vec4 {
+        Vec4() = default;
+        Vec4(f32 x, f32 y, f32 z, f32 w) : x(x), y(y), z(z), w(w) {}
+
         f32 x;
         f32 y;
         f32 z;
