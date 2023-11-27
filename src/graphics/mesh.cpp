@@ -33,6 +33,7 @@ namespace Ace {
                 // We have a tex-coord!
                 Vec2 uv;
                 sscanf(line, "vt %f %f", &uv.x, &uv.y);
+                uv.y = 1.0f - uv.y;
                 mesh->TexCoords.push_back(uv);
             }
 
@@ -48,9 +49,13 @@ namespace Ace {
                 );
                 
                 Face vertFace = {
-                    indices[0] - 1,
-                    indices[3] - 1,
-                    indices[6] - 1
+                    .a = indices[0] - 1,
+                    .b = indices[3] - 1,
+                    .c = indices[6] - 1,
+
+                    .aUV = indices[1] - 1,
+                    .bUV = indices[4] - 1,
+                    .cUV = indices[7] - 1
                 };
 
                 mesh->Faces.push_back(vertFace);

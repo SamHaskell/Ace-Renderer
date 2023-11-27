@@ -23,5 +23,8 @@ namespace Ace {
         Vertex Vertices[3];
         f32 Depth;
         Color Color;
+    
+        Vec3 BarycentricWeights(Vec2 point);
+        Vec2 InterpolatedUV(Vec3 barycentricWeights);
     };
 }

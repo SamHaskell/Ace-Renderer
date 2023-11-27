@@ -58,6 +58,7 @@ namespace Ace {
     Vec2 Hadamard(const Vec2& u, const Vec2& v);
     Vec2 Lerp(const Vec2& u, const Vec2& v, f32 t);
     Vec2 LerpClamped(const Vec2& u, const Vec2& v, f32 t);
+    f32 Span(const Vec2& u, const Vec2& v);
 
     struct Vec3 {
         Vec3() = default;

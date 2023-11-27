@@ -32,6 +32,10 @@ namespace Ace {
         return { Lerp(u.x, v.x, clamped), Lerp(u.y, v.y, clamped) };
     }
 
+    f32 Span(const Vec2& u, const Vec2& v) {
+        return u.x * v.y - v.x * u.y;
+    }
+
     f32 SqrMagnitude(const Vec3& v) {
         return Dot(v, v);
     }

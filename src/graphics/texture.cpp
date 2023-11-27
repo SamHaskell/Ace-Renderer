@@ -18,7 +18,7 @@ namespace Ace {
         
     }
 
-    u32 Texture::Sample(f32 u, f32 v) {
+    u32 Texture::Sample(f32 u, f32 v) const {
         u32 row = Clamp(v, 0.0f, 1.0f) * Height;
         u32 col = Clamp(u, 0.0f, 1.0f) * Width;
         return Data[(row * Width) + col];

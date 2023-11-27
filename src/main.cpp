@@ -105,7 +105,7 @@ namespace Ace {
             ~AceRenderer() = default;
 
             void Initialise() override {
-                m_CubeMesh = Mesh::Load("assets/f22.obj");
+                m_CubeMesh = Mesh::Load("assets/cube.obj");
                 m_CubeMesh->Position = { 0.0f, 0.0f, 0.0f };
                 m_CubeMesh->Rotation = { 0.0f, 0.0f, 0.0f };
                 m_CameraPosition = { 0.0f, 0.0f, 5.0f };
@@ -121,7 +121,6 @@ namespace Ace {
 
             void Update(f64 dt) override {
                 m_CubeMesh->Rotation += {0.0f * (f32)dt, -20.0f * (f32)dt, 0.0f * (f32)dt};
-
                 m_DebugInfo.FrameTime = dt;
             }
 
@@ -238,9 +237,9 @@ namespace Ace {
 
                 for (auto& triangle : m_TrianglesToRender) {
                     if (m_RenderFlags.Shaded) {
-                        GraphicsDevice::DrawTriangleFill(
+                        GraphicsDevice::DrawTriangleTextured(
                             pixelBuffer,
-                            triangle.Color,
+                            *m_CubeTexture,
                             triangle
                         );
                     }

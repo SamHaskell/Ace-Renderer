@@ -150,7 +150,90 @@ namespace Ace {
     }
 
     void GraphicsDevice::DrawTriangleTextured(PixelBuffer& pixelBuffer, const Texture& texture, Triangle triangle) {
+        // Sort Points top to bottom
+        
+        if (triangle.Vertices[0].Position.y > triangle.Vertices[1].Position.y) {
+            Swap<Vertex>(triangle.Vertices[0], triangle.Vertices[1]);
+        }
 
+        if (triangle.Vertices[0].Position.y > triangle.Vertices[2].Position.y) {
+            Swap<Vertex>(triangle.Vertices[0], triangle.Vertices[2]);
+        }
+
+        if (triangle.Vertices[1].Position.y > triangle.Vertices[2].Position.y) {
+            Swap<Vertex>(triangle.Vertices[1], triangle.Vertices[2]);
+        }
+
+        if (triangle.Vertices[0].Position.y == triangle.Vertices[1].Position.y) {
+            if (triangle.Vertices[0].Position.x > triangle.Vertices[1].Position.x) {
+                Swap<Vertex>(triangle.Vertices[0], triangle.Vertices[1]);
+            }
+            DrawTriangleFlatTopTextured(
+                pixelBuffer, texture, 
+                triangle.Vertices[2], 
+                triangle.Vertices[0], 
+                triangle.Vertices[1]
+            );
+            return;
+        } else if (triangle.Vertices[1].Position.y == triangle.Vertices[2].Position.y) {
+            if (triangle.Vertices[1].Position.x > triangle.Vertices[2].Position.x) {
+                Swap<Vertex>(triangle.Vertices[1], triangle.Vertices[2]);
+            }
+            DrawTriangleFlatBottomTextured(
+                pixelBuffer, texture, 
+                triangle.Vertices[2], 
+                triangle.Vertices[1],
+                triangle.Vertices[0]
+            );
+            return;
+        }
+
+        // Find the midpoint that splits triangle into flat top and flat bottom
+
+        f32 t = Unlerp(triangle.Vertices[0].Position.y, triangle.Vertices[2].Position.y, triangle.Vertices[1].Position.y);
+        f32 mx = Lerp(triangle.Vertices[0].Position.x, triangle.Vertices[2].Position.x, t);
+
+        f32 mu = Lerp(triangle.Vertices[0].TexCoord.x, triangle.Vertices[2].TexCoord.x, t);
+        f32 mv = Lerp(triangle.Vertices[0].TexCoord.y, triangle.Vertices[2].TexCoord.y, t);
+
+        Vec2 midpoint = {mx, triangle.Vertices[1].Position.y};
+
+        Vertex midVert = {
+            .Position = {mx, triangle.Vertices[1].Position.y, 0.0f, 0.0f},
+            .TexCoord = {mu, mv}
+        };
+
+        // Draw flat top and flat bottom.
+
+        if (midpoint.x > triangle.Vertices[1].Position.x) {
+            DrawTriangleFlatTopTextured(
+                pixelBuffer, texture, 
+                triangle.Vertices[2], 
+                triangle.Vertices[1], 
+                midVert
+            );
+
+            DrawTriangleFlatBottomTextured(
+                pixelBuffer, texture, 
+                triangle.Vertices[0], 
+                triangle.Vertices[1], 
+                midVert
+            );
+        } else {
+            DrawTriangleFlatTopTextured(
+                pixelBuffer, texture, 
+                triangle.Vertices[2], 
+                midVert,
+                triangle.Vertices[1]
+            );
+
+            DrawTriangleFlatBottomTextured(
+                pixelBuffer, texture, 
+                triangle.Vertices[0], 
+                midVert,
+                triangle.Vertices[1]
+            );
+        }
     }
 
     void GraphicsDevice::DrawRect(PixelBuffer& pixelBuffer, Color color, const Rect& rect) {
@@ -231,6 +314,76 @@ namespace Ace {
         for (i32 y = bottom.Position.y; y >= topRight.Position.y; y--) {
             for (i32 x = startX; x <= round(endX); x++) {
                 pixelBuffer.SetPixel(x, y, uColor);
+            }
+            startX -= invSlopeLeft;
+            endX -= invSlopeRight;
+            if ((endX - startX) > maxWidth) {
+                startX = topLeft.Position.x;
+                endX = topRight.Position.x;
+            }
+        }
+    }
+
+    void GraphicsDevice::DrawTriangleFlatBottomTextured(
+        PixelBuffer& pixelBuffer,
+        const Texture& texture,
+        Vertex top,
+        Vertex bottomLeft,
+        Vertex bottomRight
+    ) {
+        Triangle tri = {
+            .Vertices = { top, bottomLeft, bottomRight }
+        };
+
+        f32 maxWidth = bottomRight.Position.x - bottomLeft.Position.x;
+
+        f32 invSlopeLeft = (f32)(bottomLeft.Position.x - top.Position.x)/(bottomLeft.Position.y - top.Position.y);
+        f32 invSlopeRight = (f32)(bottomRight.Position.x - top.Position.x)/(bottomRight.Position.y - top.Position.y);
+
+        f32 startX = top.Position.x;
+        f32 endX = top.Position.x;
+
+        for (i32 y = top.Position.y; y <= bottomRight.Position.y; y++) {
+            for (i32 x = startX; x <= round(endX); x++) {
+                Vec3 weights = tri.BarycentricWeights({(f32)x, (f32)y});
+                Vec2 uv = tri.InterpolatedUV(weights);
+                u32 color = texture.Sample(uv.x, uv.y);
+                pixelBuffer.SetPixel(x, y, color);
+            }
+            startX += invSlopeLeft;
+            endX += invSlopeRight;
+            if ((endX - startX) > maxWidth) {
+                startX = bottomLeft.Position.x;
+                endX = bottomRight.Position.x;
+            }
+        }
+    }
+
+    void GraphicsDevice::DrawTriangleFlatTopTextured(
+        PixelBuffer& pixelBuffer,
+        const Texture& texture,
+        Vertex bottom,
+        Vertex topLeft,
+        Vertex topRight
+    ) {
+        Triangle tri = {
+            .Vertices = { bottom, topLeft, topRight }
+        };
+
+        f32 maxWidth = topRight.Position.x - topLeft.Position.x;
+
+        f32 invSlopeLeft = (f32)(bottom.Position.x - topLeft.Position.x)/(bottom.Position.y - topLeft.Position.y);
+        f32 invSlopeRight = (f32)(bottom.Position.x - topRight.Position.x)/(bottom.Position.y - topRight.Position.y);
+
+        f32 startX = bottom.Position.x;
+        f32 endX = bottom.Position.x;
+
+        for (i32 y = bottom.Position.y; y >= topRight.Position.y; y--) {
+            for (i32 x = startX; x <= round(endX); x++) {
+                Vec3 weights = tri.BarycentricWeights({(f32)x, (f32)y});
+                Vec2 uv = tri.InterpolatedUV(weights);
+                u32 color = texture.Sample(uv.x, uv.y);
+                pixelBuffer.SetPixel(x, y, color);
             }
             startX -= invSlopeLeft;
             endX -= invSlopeRight;
