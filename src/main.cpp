@@ -185,7 +185,7 @@ namespace Ace {
                         proj * transformedVerts[2]
                     };
 
-                    // z-Divide
+                    // Perspective-Divide
 
                     for (i32 i = 0; i < 3; i++) {
                         projectedVerts[i].x = projectedVerts[i].x / projectedVerts[i].w;
