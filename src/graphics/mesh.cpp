@@ -3,35 +3,10 @@
 #include <stdio.h>
 
 namespace Ace {
-    std::vector<Vec3> g_CubeVertices = {
-        {-1.0, -1.0, -1.0},
-        {-1.0, +1.0, -1.0},
-        {+1.0, +1.0, -1.0},
-        {+1.0, -1.0, -1.0},
-        {+1.0, +1.0, +1.0},
-        {+1.0, -1.0, +1.0},
-        {-1.0, +1.0, +1.0},
-        {-1.0, -1.0, +1.0}
-    };
-
-    std::vector<Face> g_CubeFaces = {
-        { 0, 1, 2 },
-        { 0, 2, 3 },
-        { 3, 2, 4 },
-        { 3, 4, 5 },
-        { 5, 4, 6 },
-        { 5, 6, 7 },
-        { 7, 6, 1 },
-        { 7, 1, 0 },
-        { 1, 6, 4 },
-        { 1, 4, 2 },
-        { 5, 7, 0 },
-        { 5, 0, 3 }
-    };  
-
-    Mesh* Mesh::Create(std::vector<Vec3> vertices, std::vector<Face> faces) {
+    Mesh* Mesh::Create(std::vector<Vec3> vertices, std::vector<Vec2> texCoords, std::vector<Face> faces) {
         Mesh* mesh = new Mesh();
         mesh->Vertices = vertices;
+        mesh->TexCoords = texCoords;
         mesh->Faces = faces;
         return mesh;
     }
@@ -45,13 +20,20 @@ namespace Ace {
             return nullptr;
         }
 
-        u8 line[1024];
+        i8 line[1024];
         while(fgets(line, 1024, file)) {
             if (strncmp(line, "v ", 2) == 0) {
                 // We have a vertex!
                 Vec3 vert;
                 sscanf(line, "v %f %f %f", &vert.x, &vert.y, &vert.z);
                 mesh->Vertices.push_back(vert);
+            }
+
+            if (strncmp(line, "vt ", 3) == 0) {
+                // We have a tex-coord!
+                Vec2 uv;
+                sscanf(line, "vt %f %f", &uv.x, &uv.y);
+                mesh->TexCoords.push_back(uv);
             }
 
             if (strncmp(line, "f ", 2) == 0) {

@@ -8,6 +8,7 @@ namespace Ace {
     struct Vec2;
     struct Triangle;
     struct Color;
+    struct Texture;
     
     class GraphicsDevice {
         public:
@@ -20,6 +21,7 @@ namespace Ace {
 
             static void DrawTriangle(PixelBuffer& pixelBuffer, Color color, const Triangle& triangle);
             static void DrawTriangleFill(PixelBuffer& pixelBuffer, Color color, Triangle triangle);
+            static void DrawTriangleTextured(PixelBuffer& pixelBuffer, const Texture& texture, Triangle triangle);
 
             static void DrawRect(PixelBuffer& pixelBuffer, Color color, const Rect& rect);
             static void DrawRectFill(PixelBuffer& pixelBuffer, Color color, const Rect& rect);

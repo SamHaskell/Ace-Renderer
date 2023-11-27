@@ -1,6 +1,7 @@
 #include "graphics/graphicsdevice.hpp"
 #include "graphics/triangle.hpp"
 #include "graphics/color.hpp"
+#include "graphics/texture.hpp"
 #include "maths/maths.hpp"
 
 namespace Ace {
@@ -189,6 +190,10 @@ namespace Ace {
             startX += invSlopeLeft;
             endX += invSlopeRight;
         }
+    }
+
+    void GraphicsDevice::DrawTriangleTextured(PixelBuffer& pixelBuffer, const Texture& texture, Triangle triangle) {
+
     }
 
     void GraphicsDevice::DrawTriangleFlatTop(
