@@ -101,9 +101,9 @@ namespace Ace {
         f32 invTan = 1.0f / tanf(DEG2RAD * fovY / 2.0f);
 
         m[0] = (1.0f / aspect) * invTan;
-        m[5] = invTan;
-        m[10] = - (zFar + zNear) / (zFar - zNear);
-        m[14] = - 2.0f * zFar * zNear / (zFar - zNear);
+        m[5] = - invTan;
+        m[10] =  - (zFar + zNear) / (zFar - zNear);
+        m[14] =  - (2.0f * zFar * zNear) / (zFar - zNear);
         m[11] = - 1.0f;
         m[15] = 0.0f;
 

@@ -33,9 +33,9 @@ namespace Ace {
                 m_CubeMesh = Mesh::Load("assets/cube.obj");
                 m_CubeMesh->Position = { 0.0f, 0.0f, 0.0f };
                 m_CubeMesh->Rotation = { 0.0f, 0.0f, 0.0f };
-                m_CameraPosition = { 0.0f, 0.0f, -5.0f };
+                m_CameraPosition = { 0.0f, 0.0f, 5.0f };
 
-                m_DirectionalLight.Direction = Normalised({0.0f, 0.0f, 1.0f});
+                m_DirectionalLight.Direction = Normalised({1.0f, -1.0f, -1.0f});
             }
 
             void Shutdown() override {
@@ -43,21 +43,7 @@ namespace Ace {
             }
 
             void Update(f64 dt) override {
-                m_CubeMesh->Rotation += {0.0f * (f32)dt, 30.0f * (f32)dt, 0.0f * (f32)dt};
-            }
-
-            Vec2 ProjectOrthographic(Vec3 position) {
-                return {
-                    position.x,
-                    position.y
-                };
-            }
-
-            Vec2 ProjectPerspective(Vec4 position) {
-                return {
-                    position.x / position.z,
-                    position.y / position.z
-                };
+                m_CubeMesh->Rotation += {0.0f * (f32)dt, -20.0f * (f32)dt, 0.0f * (f32)dt};
             }
 
             void Render(PixelBuffer& pixelBuffer) override {
@@ -130,10 +116,9 @@ namespace Ace {
                     // Shading
 
                     f32 lightingIntensity = - Dot(normal, m_DirectionalLight.Direction);
-                    lightingIntensity = Clamp(lightingIntensity, 0.0f, 1.0f);
-                    ACE_INFO("%f", Magnitude(normal));
+                    lightingIntensity = Clamp(lightingIntensity + 0.3f, 0.0f, 1.0f);
 
-                    Color color = Color::White();
+                    Color color = {0.2, 0.2, 0.8, 1.0};
 
                     color.r *= lightingIntensity;
                     color.g *= lightingIntensity;
@@ -157,7 +142,7 @@ namespace Ace {
                 // Sort triangles by depth (NOTE: std::sort for now, optimise later)
 
                 std::sort(m_TrianglesToRender.begin(), m_TrianglesToRender.end(), [] (Triangle a, Triangle b) {
-                    return a.Depth > b.Depth;
+                    return a.Depth < b.Depth;
                 });
 
                 for (auto& triangle : m_TrianglesToRender) {
