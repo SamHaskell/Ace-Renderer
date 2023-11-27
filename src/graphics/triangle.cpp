@@ -15,8 +15,19 @@ namespace Ace {
     }
 
     Vec2 Triangle::InterpolatedUV(Vec3 barycentricWeights) {
-        return  Vertices[0].TexCoord * barycentricWeights.x +
-                Vertices[1].TexCoord * barycentricWeights.y +
-                Vertices[2].TexCoord * barycentricWeights.z;
+
+        f32 interpolatedInvW = (
+            (1.0f / Vertices[0].Position.w) * barycentricWeights.x +
+            (1.0f / Vertices[1].Position.w) * barycentricWeights.y +
+            (1.0f / Vertices[2].Position.w) * barycentricWeights.z
+        );
+
+        Vec2 interpolatedUV =   Vertices[0].TexCoord * (1.0f / Vertices[0].Position.w) * barycentricWeights.x +
+                                Vertices[1].TexCoord * (1.0f / Vertices[1].Position.w) * barycentricWeights.y +
+                                Vertices[2].TexCoord * (1.0f / Vertices[2].Position.w) * barycentricWeights.z;
+
+        interpolatedUV *= (1.0f / interpolatedInvW);
+
+        return interpolatedUV;
     }
 };

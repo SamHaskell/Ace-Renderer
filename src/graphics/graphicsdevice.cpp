@@ -193,19 +193,19 @@ namespace Ace {
         f32 t = Unlerp(triangle.Vertices[0].Position.y, triangle.Vertices[2].Position.y, triangle.Vertices[1].Position.y);
         f32 mx = Lerp(triangle.Vertices[0].Position.x, triangle.Vertices[2].Position.x, t);
 
+        Vec4 mid = Lerp(triangle.Vertices[0].Position, triangle.Vertices[2].Position, t);
+
         f32 mu = Lerp(triangle.Vertices[0].TexCoord.x, triangle.Vertices[2].TexCoord.x, t);
         f32 mv = Lerp(triangle.Vertices[0].TexCoord.y, triangle.Vertices[2].TexCoord.y, t);
 
-        Vec2 midpoint = {mx, triangle.Vertices[1].Position.y};
-
         Vertex midVert = {
-            .Position = {mx, triangle.Vertices[1].Position.y, 0.0f, 0.0f},
+            .Position = mid,
             .TexCoord = {mu, mv}
         };
 
         // Draw flat top and flat bottom.
 
-        if (midpoint.x > triangle.Vertices[1].Position.x) {
+        if (mid.x > triangle.Vertices[1].Position.x) {
             DrawTriangleFlatTopTextured(
                 pixelBuffer, texture, 
                 triangle.Vertices[2], 

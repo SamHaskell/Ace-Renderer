@@ -133,4 +133,6 @@ namespace Ace {
         f32 z;
         f32 w;
     };
+
+    Vec4 Lerp(const Vec4& u, const Vec4& v, f32 t);
 };

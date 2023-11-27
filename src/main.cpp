@@ -231,7 +231,7 @@ namespace Ace {
 
                 // Sort triangles by depth (NOTE: std::sort for now, optimise later)
 
-                std::sort(m_TrianglesToRender.begin(), m_TrianglesToRender.end(), [] (Triangle a, Triangle b) {
+                std::sort(m_TrianglesToRender.begin(), m_TrianglesToRender.end(), [] (const Triangle& a, const Triangle& b) {
                     return a.Depth < b.Depth;
                 });
 

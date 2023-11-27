@@ -99,4 +99,8 @@ namespace Ace {
     }
 
     Vec3::Vec3(Vec4 vec) : x(vec.x), y(vec.y), z(vec.z) {}
+
+    Vec4 Lerp(const Vec4& u, const Vec4& v, f32 t) {
+        return Vec4( Lerp(u.x, v.x, t), Lerp(u.y, v.y, t), Lerp(u.z, v.z, t), Lerp(u.w, v.w, t) );
+    }
 }
