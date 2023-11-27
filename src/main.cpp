@@ -83,6 +83,11 @@ static u8 g_TexData[64 * 64 * 4] = {
 };
 
 namespace Ace {
+    struct DebugInfo {
+        f64 FrameTime = 0.0;
+        u32 TriangleCount = 0;
+    };
+
     struct DirectionalLight {
         Vec3 Direction;
     };
@@ -116,6 +121,8 @@ namespace Ace {
 
             void Update(f64 dt) override {
                 m_CubeMesh->Rotation += {0.0f * (f32)dt, -20.0f * (f32)dt, 0.0f * (f32)dt};
+
+                m_DebugInfo.FrameTime = dt;
             }
 
             void Render(PixelBuffer& pixelBuffer) override {
@@ -221,6 +228,8 @@ namespace Ace {
                     );
                 }
 
+                m_DebugInfo.TriangleCount = m_TrianglesToRender.size();
+
                 // Sort triangles by depth (NOTE: std::sort for now, optimise later)
 
                 std::sort(m_TrianglesToRender.begin(), m_TrianglesToRender.end(), [] (Triangle a, Triangle b) {
@@ -269,6 +278,11 @@ namespace Ace {
                 ImGui::Checkbox("Backface Culling", &m_RenderFlags.Culling);
                 ImGui::Checkbox("Vertices", &m_RenderFlags.Vertices);
                 ImGui::End();
+
+                ImGui::Begin("Debug Information");
+                ImGui::Text("%-12s: %-.4lf ms", "Frame Time", m_DebugInfo.FrameTime * 1000.0);
+                ImGui::Text("%-12s: %-d", "Tri Count", m_DebugInfo.TriangleCount);
+                ImGui::End();
             }
 
             void OnEvent() override {
@@ -282,6 +296,7 @@ namespace Ace {
             Texture* m_CubeTexture;
             RenderFlags m_RenderFlags;
             DirectionalLight m_DirectionalLight;
+            DebugInfo m_DebugInfo;
     };
 }
 

@@ -109,6 +109,8 @@ namespace Ace {
 
         Vec2 midpoint = {mx, triangle.Vertices[1].Position.y};
 
+        // TODO: Properly interpolate z and UVs for the midpoint.
+
         Vertex midVert = {
             .Position = {mx, triangle.Vertices[1].Position.y, 0.0f, 0.0f},
             .TexCoord = {0.5f, 0.5f}
@@ -157,10 +159,12 @@ namespace Ace {
         if ((rect.w < 0) || (rect.h < 0)) {
             return;
         }
+
         for (i32 i = 0; i < rect.w; i++) {
             pixelBuffer.SetPixel(i + rect.x, rect.y, uColor);
             pixelBuffer.SetPixel(i + rect.x, rect.y + rect.h, uColor);
         }
+
         for (i32 j = 0; j < rect.h; j++) {
             pixelBuffer.SetPixel(rect.x, rect.y, uColor);
             pixelBuffer.SetPixel(rect.x + rect.w, rect.y, uColor);
@@ -186,6 +190,8 @@ namespace Ace {
     ) {
         u32 uColor = color.U32_ARGB();
 
+        f32 maxWidth = bottomRight.Position.x - bottomLeft.Position.x;
+
         f32 invSlopeLeft = (f32)(bottomLeft.Position.x - top.Position.x)/(bottomLeft.Position.y - top.Position.y);
         f32 invSlopeRight = (f32)(bottomRight.Position.x - top.Position.x)/(bottomRight.Position.y - top.Position.y);
 
@@ -198,6 +204,10 @@ namespace Ace {
             }
             startX += invSlopeLeft;
             endX += invSlopeRight;
+            if ((endX - startX) > maxWidth) {
+                startX = bottomLeft.Position.x;
+                endX = bottomRight.Position.x;
+            }
         }
     }
 
@@ -209,6 +219,8 @@ namespace Ace {
         Vertex topRight 
     ) {
         u32 uColor = color.U32_ARGB();
+
+        f32 maxWidth = topRight.Position.x - topLeft.Position.x;
 
         f32 invSlopeLeft = (f32)(bottom.Position.x - topLeft.Position.x)/(bottom.Position.y - topLeft.Position.y);
         f32 invSlopeRight = (f32)(bottom.Position.x - topRight.Position.x)/(bottom.Position.y - topRight.Position.y);
@@ -222,6 +234,10 @@ namespace Ace {
             }
             startX -= invSlopeLeft;
             endX -= invSlopeRight;
+            if ((endX - startX) > maxWidth) {
+                startX = topLeft.Position.x;
+                endX = topRight.Position.x;
+            }
         }
     }
 
