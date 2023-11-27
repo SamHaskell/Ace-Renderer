@@ -11,7 +11,7 @@ namespace Ace {
     }
 
     Vec2 Normalised(const Vec2& v) {
-        f32 inv = 1.0f/SqrMagnitude(v);
+        f32 inv = 1.0f/Magnitude(v);
         return v * inv;
     }
 
@@ -41,7 +41,7 @@ namespace Ace {
     }
 
     Vec3 Normalised(const Vec3& v) {
-        f32 inv = 1.0f/SqrMagnitude(v);
+        f32 inv = 1.0f/Magnitude(v);
         return v * inv;
     }
 

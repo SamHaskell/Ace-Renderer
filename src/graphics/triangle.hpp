@@ -2,6 +2,7 @@
 
 #include "core/defines.hpp"
 #include "maths/vector.hpp"
+#include "graphics/color.hpp"
 
 namespace Ace {
     struct Face {
@@ -11,7 +12,8 @@ namespace Ace {
     };
 
     struct Triangle {
-        Vec2 points[3];
-        f32 depth;
+        Vec2 Points[3];
+        f32 Depth;
+        Color Color;
     };
 }

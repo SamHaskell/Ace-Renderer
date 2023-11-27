@@ -30,12 +30,12 @@ namespace Ace {
             ~AceRenderer() = default;
 
             void Initialise() override {
-                m_CubeMesh = Mesh::Load("assets/f22.obj");
+                m_CubeMesh = Mesh::Load("assets/cube.obj");
                 m_CubeMesh->Position = { 0.0f, 0.0f, 0.0f };
                 m_CubeMesh->Rotation = { 0.0f, 0.0f, 0.0f };
                 m_CameraPosition = { 0.0f, 0.0f, -5.0f };
 
-                m_DirectionalLight.Direction = {1.0f, -1.0f, 1.0f};
+                m_DirectionalLight.Direction = Normalised({0.0f, 0.0f, 1.0f});
             }
 
             void Shutdown() override {
@@ -43,7 +43,7 @@ namespace Ace {
             }
 
             void Update(f64 dt) override {
-                m_CubeMesh->Rotation += {20.0f * (f32)dt, 30.0f * (f32)dt, 40.0f * (f32)dt};
+                m_CubeMesh->Rotation += {0.0f * (f32)dt, 30.0f * (f32)dt, 0.0f * (f32)dt};
             }
 
             Vec2 ProjectOrthographic(Vec3 position) {
@@ -88,10 +88,11 @@ namespace Ace {
 
                     // Cull
 
+                    Vec3 vec_ab = Vec3(transformedVerts[1]) - Vec3(transformedVerts[0]);
+                    Vec3 vec_ac = Vec3(transformedVerts[2]) - Vec3(transformedVerts[0]);
+                    Vec3 normal = Cross(vec_ab, vec_ac);
+                    normal.NormaliseInPlace();
                     if (m_RenderFlags.Culling) {
-                        Vec3 vec_ab = Vec3(transformedVerts[1]) - Vec3(transformedVerts[0]);
-                        Vec3 vec_ac = Vec3(transformedVerts[2]) - Vec3(transformedVerts[0]);
-                        Vec3 normal = Cross(vec_ab, vec_ac);
                         Vec3 camera = m_CameraPosition - Vec3(transformedVerts[0]);
                         if (Dot(normal, camera) < 0.0f) {
                             continue;
@@ -118,14 +119,37 @@ namespace Ace {
                         proj * transformedVerts[2]
                     };
 
+                    // z-Divide
+
+                    for (i32 i = 0; i < 3; i++) {
+                        projectedVerts[i].x = projectedVerts[i].x / projectedVerts[i].w;
+                        projectedVerts[i].y = projectedVerts[i].y / projectedVerts[i].w;
+                        projectedVerts[i].z = projectedVerts[i].z / projectedVerts[i].w;
+                    }
+
+                    // Shading
+
+                    f32 lightingIntensity = - Dot(normal, m_DirectionalLight.Direction);
+                    lightingIntensity = Clamp(lightingIntensity, 0.0f, 1.0f);
+                    ACE_INFO("%f", Magnitude(normal));
+
+                    Color color = Color::White();
+
+                    color.r *= lightingIntensity;
+                    color.g *= lightingIntensity;
+                    color.b *= lightingIntensity;
+
+                    // Send triangle to be rastered
+
                     m_TrianglesToRender.push_back(
                         {
-                            .points = {
-                                { (projectedVerts[0].x / projectedVerts[0].w + 1.0f) * ((f32)pixelBuffer.Width / 2.0f), (projectedVerts[0].y / projectedVerts[0].w + 1.0f) * ((f32)pixelBuffer.Height / 2.0f) },
-                                { (projectedVerts[1].x / projectedVerts[1].w + 1.0f) * ((f32)pixelBuffer.Width / 2.0f), (projectedVerts[1].y / projectedVerts[1].w + 1.0f) * ((f32)pixelBuffer.Height / 2.0f) },
-                                { (projectedVerts[2].x / projectedVerts[2].w + 1.0f) * ((f32)pixelBuffer.Width / 2.0f), (projectedVerts[2].y / projectedVerts[2].w + 1.0f) * ((f32)pixelBuffer.Height / 2.0f) }
+                            .Points = {
+                                { (projectedVerts[0].x + 1.0f) * ((f32)pixelBuffer.Width / 2.0f), (projectedVerts[0].y + 1.0f) * ((f32)pixelBuffer.Height / 2.0f) },
+                                { (projectedVerts[1].x + 1.0f) * ((f32)pixelBuffer.Width / 2.0f), (projectedVerts[1].y + 1.0f) * ((f32)pixelBuffer.Height / 2.0f) },
+                                { (projectedVerts[2].x + 1.0f) * ((f32)pixelBuffer.Width / 2.0f), (projectedVerts[2].y + 1.0f) * ((f32)pixelBuffer.Height / 2.0f) }
                             },
-                            .depth = depth
+                            .Depth = depth,
+                            .Color = color
                         }
                     );
                 }
@@ -133,14 +157,14 @@ namespace Ace {
                 // Sort triangles by depth (NOTE: std::sort for now, optimise later)
 
                 std::sort(m_TrianglesToRender.begin(), m_TrianglesToRender.end(), [] (Triangle a, Triangle b) {
-                    return a.depth > b.depth;
+                    return a.Depth > b.Depth;
                 });
 
                 for (auto& triangle : m_TrianglesToRender) {
                     if (m_RenderFlags.Shaded) {
                         GraphicsDevice::DrawTriangleFill(
                             pixelBuffer,
-                            {0.6, 0.6, 0.6, 1.0},
+                            triangle.Color,
                             triangle
                         );
                     }
@@ -156,8 +180,8 @@ namespace Ace {
                     if (m_RenderFlags.Vertices) {
                         for (i32 j = 0; j < 3; j++) {
                             Rect rect = {
-                                triangle.points[j].x - 2,
-                                triangle.points[j].y - 2,
+                                triangle.Points[j].x - 2,
+                                triangle.Points[j].y - 2,
                                 4,
                                 4
                             };

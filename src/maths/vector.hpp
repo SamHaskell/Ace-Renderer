@@ -38,7 +38,7 @@ namespace Ace {
         }
         
         void NormaliseInPlace() {
-            f32 inv = 1.0f/(x*x + y*y);
+            f32 inv = 1.0f/sqrtf(x*x + y*y);
             x *= inv;
             y *= inv;
         }
@@ -94,7 +94,7 @@ namespace Ace {
         }
 
         void NormaliseInPlace() {
-            f32 inv = 1.0f/(x*x + y*y + z*z);
+            f32 inv = 1.0f/sqrtf(x*x + y*y + z*z);
             x *= inv;
             y *= inv;
             z *= inv;

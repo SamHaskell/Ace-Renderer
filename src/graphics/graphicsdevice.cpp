@@ -43,100 +43,100 @@ namespace Ace {
         DrawLine(
             pixelBuffer,
             color,
-            triangle.points[0],
-            triangle.points[1]
+            triangle.Points[0],
+            triangle.Points[1]
         );
 
         DrawLine(
             pixelBuffer,
             color,
-            triangle.points[1],
-            triangle.points[2]
+            triangle.Points[1],
+            triangle.Points[2]
         );
 
         DrawLine(
             pixelBuffer,
             color,
-            triangle.points[2],
-            triangle.points[0]
+            triangle.Points[2],
+            triangle.Points[0]
         );
     }
 
     void GraphicsDevice::DrawTriangleFill(PixelBuffer& pixelBuffer, Color color, Triangle triangle) {
-        // Sort points top to bottom
+        // Sort Points top to bottom
         
-        if (triangle.points[0].y > triangle.points[1].y) {
-            Swap<Vec2>(triangle.points[0], triangle.points[1]);
+        if (triangle.Points[0].y > triangle.Points[1].y) {
+            Swap<Vec2>(triangle.Points[0], triangle.Points[1]);
         }
 
-        if (triangle.points[0].y > triangle.points[2].y) {
-            Swap<Vec2>(triangle.points[0], triangle.points[2]);
+        if (triangle.Points[0].y > triangle.Points[2].y) {
+            Swap<Vec2>(triangle.Points[0], triangle.Points[2]);
         }
 
-        if (triangle.points[1].y > triangle.points[2].y) {
-            Swap<Vec2>(triangle.points[1], triangle.points[2]);
+        if (triangle.Points[1].y > triangle.Points[2].y) {
+            Swap<Vec2>(triangle.Points[1], triangle.Points[2]);
         }
 
-        if (triangle.points[0].y == triangle.points[1].y) {
-            if (triangle.points[0].x > triangle.points[1].x) {
-                Swap<Vec2>(triangle.points[0], triangle.points[1]);
+        if (triangle.Points[0].y == triangle.Points[1].y) {
+            if (triangle.Points[0].x > triangle.Points[1].x) {
+                Swap<Vec2>(triangle.Points[0], triangle.Points[1]);
             }
             DrawTriangleFlatTop(
                 pixelBuffer, color, 
-                triangle.points[2].x, triangle.points[2].y, 
-                triangle.points[0].x, triangle.points[0].y, 
-                triangle.points[1].x, triangle.points[1].y
+                triangle.Points[2].x, triangle.Points[2].y, 
+                triangle.Points[0].x, triangle.Points[0].y, 
+                triangle.Points[1].x, triangle.Points[1].y
             );
             return;
-        } else if (triangle.points[1].y == triangle.points[2].y) {
-            if (triangle.points[1].x > triangle.points[2].x) {
-                Swap<Vec2>(triangle.points[1], triangle.points[2]);
+        } else if (triangle.Points[1].y == triangle.Points[2].y) {
+            if (triangle.Points[1].x > triangle.Points[2].x) {
+                Swap<Vec2>(triangle.Points[1], triangle.Points[2]);
             }
             DrawTriangleFlatBottom(
                 pixelBuffer, color, 
-                triangle.points[2].x, triangle.points[2].y, 
-                triangle.points[1].x, triangle.points[1].y,
-                triangle.points[0].x, triangle.points[0].y
+                triangle.Points[2].x, triangle.Points[2].y, 
+                triangle.Points[1].x, triangle.Points[1].y,
+                triangle.Points[0].x, triangle.Points[0].y
             );
             return;
         }
 
         // Find the midpoint that splits triangle into flat top and flat bottom
 
-        f32 t = Unlerp(triangle.points[0].y, triangle.points[2].y, triangle.points[1].y);
-        f32 mx = Lerp(triangle.points[0].x, triangle.points[2].x, t);
+        f32 t = Unlerp(triangle.Points[0].y, triangle.Points[2].y, triangle.Points[1].y);
+        f32 mx = Lerp(triangle.Points[0].x, triangle.Points[2].x, t);
 
-        Vec2 midpoint = {mx, triangle.points[1].y};
+        Vec2 midpoint = {mx, triangle.Points[1].y};
 
         // Draw flat top and flat bottom.
 
-        if (midpoint.x > triangle.points[1].x) {
+        if (midpoint.x > triangle.Points[1].x) {
             DrawTriangleFlatTop(
                 pixelBuffer, color, 
-                triangle.points[2].x, triangle.points[2].y, 
-                triangle.points[1].x, triangle.points[1].y, 
+                triangle.Points[2].x, triangle.Points[2].y, 
+                triangle.Points[1].x, triangle.Points[1].y, 
                 midpoint.x, midpoint.y
             );
 
             DrawTriangleFlatBottom(
                 pixelBuffer, color, 
-                triangle.points[0].x, triangle.points[0].y, 
-                triangle.points[1].x, triangle.points[1].y, 
+                triangle.Points[0].x, triangle.Points[0].y, 
+                triangle.Points[1].x, triangle.Points[1].y, 
                 midpoint.x, midpoint.y
             );
         } else {
             DrawTriangleFlatTop(
                 pixelBuffer, color, 
-                triangle.points[2].x, triangle.points[2].y, 
+                triangle.Points[2].x, triangle.Points[2].y, 
                 midpoint.x, midpoint.y,
-                triangle.points[1].x, triangle.points[1].y
+                triangle.Points[1].x, triangle.Points[1].y
             );
 
             DrawTriangleFlatBottom(
                 pixelBuffer, color, 
-                triangle.points[0].x, triangle.points[0].y, 
+                triangle.Points[0].x, triangle.Points[0].y, 
                 midpoint.x, midpoint.y,
-                triangle.points[1].x, triangle.points[1].y
+                triangle.Points[1].x, triangle.Points[1].y
             );
         }
     }
