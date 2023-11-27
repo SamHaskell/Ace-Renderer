@@ -100,7 +100,7 @@ namespace Ace {
             ~AceRenderer() = default;
 
             void Initialise() override {
-                m_CubeMesh = Mesh::Load("assets/cube.obj");
+                m_CubeMesh = Mesh::Load("assets/f22.obj");
                 m_CubeMesh->Position = { 0.0f, 0.0f, 0.0f };
                 m_CubeMesh->Rotation = { 0.0f, 0.0f, 0.0f };
                 m_CameraPosition = { 0.0f, 0.0f, 5.0f };
@@ -201,15 +201,19 @@ namespace Ace {
 
                     m_TrianglesToRender.push_back(
                         {
-                            .Points = {
-                                { (projectedVerts[0].x + 1.0f) * ((f32)pixelBuffer.Width / 2.0f), (projectedVerts[0].y + 1.0f) * ((f32)pixelBuffer.Height / 2.0f) },
-                                { (projectedVerts[1].x + 1.0f) * ((f32)pixelBuffer.Width / 2.0f), (projectedVerts[1].y + 1.0f) * ((f32)pixelBuffer.Height / 2.0f) },
-                                { (projectedVerts[2].x + 1.0f) * ((f32)pixelBuffer.Width / 2.0f), (projectedVerts[2].y + 1.0f) * ((f32)pixelBuffer.Height / 2.0f) }
-                            },
-                            .TexCoords = {
-                                { m_CubeMesh->TexCoords[face.aUV] },
-                                { m_CubeMesh->TexCoords[face.bUV] },
-                                { m_CubeMesh->TexCoords[face.cUV] }
+                            .Vertices = {
+                                {
+                                    .Position = { (projectedVerts[0].x + 1.0f) * ((f32)pixelBuffer.Width / 2.0f), (projectedVerts[0].y + 1.0f) * ((f32)pixelBuffer.Height / 2.0f), projectedVerts[0].z, projectedVerts[0].w },
+                                    .TexCoord = { m_CubeMesh->TexCoords[face.aUV] }
+                                },
+                                {
+                                    .Position = { (projectedVerts[1].x + 1.0f) * ((f32)pixelBuffer.Width / 2.0f), (projectedVerts[1].y + 1.0f) * ((f32)pixelBuffer.Height / 2.0f), projectedVerts[1].z, projectedVerts[1].w  },
+                                    .TexCoord = { m_CubeMesh->TexCoords[face.bUV] }
+                                },
+                                {
+                                    .Position = { (projectedVerts[2].x + 1.0f) * ((f32)pixelBuffer.Width / 2.0f), (projectedVerts[2].y + 1.0f) * ((f32)pixelBuffer.Height / 2.0f), projectedVerts[2].z, projectedVerts[2].w  },
+                                    .TexCoord = { m_CubeMesh->TexCoords[face.cUV] }
+                                }
                             },
                             .Depth = depth,
                             .Color = color
@@ -243,8 +247,8 @@ namespace Ace {
                     if (m_RenderFlags.Vertices) {
                         for (i32 j = 0; j < 3; j++) {
                             Rect rect = {
-                                triangle.Points[j].x - 2,
-                                triangle.Points[j].y - 2,
+                                triangle.Vertices[j].Position.x - 2,
+                                triangle.Vertices[j].Position.y - 2,
                                 4,
                                 4
                             };

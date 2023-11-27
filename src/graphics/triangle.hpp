@@ -5,6 +5,11 @@
 #include "graphics/color.hpp"
 
 namespace Ace {
+    struct Vertex {
+        Vec4 Position;
+        Vec2 TexCoord;
+    };
+
     struct Face {
         u32 a;
         u32 b;
@@ -15,8 +20,7 @@ namespace Ace {
     };
 
     struct Triangle {
-        Vec2 Points[3];
-        Vec2 TexCoords[3];
+        Vertex Vertices[3];
         f32 Depth;
         Color Color;
     };

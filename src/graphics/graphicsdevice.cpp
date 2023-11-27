@@ -44,102 +44,111 @@ namespace Ace {
         DrawLine(
             pixelBuffer,
             color,
-            triangle.Points[0],
-            triangle.Points[1]
+            { triangle.Vertices[0].Position.x, triangle.Vertices[0].Position.y },
+            { triangle.Vertices[1].Position.x, triangle.Vertices[1].Position.y }
         );
 
         DrawLine(
             pixelBuffer,
             color,
-            triangle.Points[1],
-            triangle.Points[2]
+            { triangle.Vertices[1].Position.x, triangle.Vertices[1].Position.y },
+            { triangle.Vertices[2].Position.x, triangle.Vertices[2].Position.y }
         );
 
         DrawLine(
             pixelBuffer,
             color,
-            triangle.Points[2],
-            triangle.Points[0]
+            { triangle.Vertices[2].Position.x, triangle.Vertices[2].Position.y },
+            { triangle.Vertices[0].Position.x, triangle.Vertices[0].Position.y }
         );
     }
 
     void GraphicsDevice::DrawTriangleFill(PixelBuffer& pixelBuffer, Color color, Triangle triangle) {
         // Sort Points top to bottom
         
-        if (triangle.Points[0].y > triangle.Points[1].y) {
-            Swap<Vec2>(triangle.Points[0], triangle.Points[1]);
+        if (triangle.Vertices[0].Position.y > triangle.Vertices[1].Position.y) {
+            Swap<Vertex>(triangle.Vertices[0], triangle.Vertices[1]);
         }
 
-        if (triangle.Points[0].y > triangle.Points[2].y) {
-            Swap<Vec2>(triangle.Points[0], triangle.Points[2]);
+        if (triangle.Vertices[0].Position.y > triangle.Vertices[2].Position.y) {
+            Swap<Vertex>(triangle.Vertices[0], triangle.Vertices[2]);
         }
 
-        if (triangle.Points[1].y > triangle.Points[2].y) {
-            Swap<Vec2>(triangle.Points[1], triangle.Points[2]);
+        if (triangle.Vertices[1].Position.y > triangle.Vertices[2].Position.y) {
+            Swap<Vertex>(triangle.Vertices[1], triangle.Vertices[2]);
         }
 
-        if (triangle.Points[0].y == triangle.Points[1].y) {
-            if (triangle.Points[0].x > triangle.Points[1].x) {
-                Swap<Vec2>(triangle.Points[0], triangle.Points[1]);
+        if (triangle.Vertices[0].Position.y == triangle.Vertices[1].Position.y) {
+            if (triangle.Vertices[0].Position.x > triangle.Vertices[1].Position.x) {
+                Swap<Vertex>(triangle.Vertices[0], triangle.Vertices[1]);
             }
             DrawTriangleFlatTop(
                 pixelBuffer, color, 
-                triangle.Points[2].x, triangle.Points[2].y, 
-                triangle.Points[0].x, triangle.Points[0].y, 
-                triangle.Points[1].x, triangle.Points[1].y
+                triangle.Vertices[2], 
+                triangle.Vertices[0], 
+                triangle.Vertices[1]
             );
             return;
-        } else if (triangle.Points[1].y == triangle.Points[2].y) {
-            if (triangle.Points[1].x > triangle.Points[2].x) {
-                Swap<Vec2>(triangle.Points[1], triangle.Points[2]);
+        } else if (triangle.Vertices[1].Position.y == triangle.Vertices[2].Position.y) {
+            if (triangle.Vertices[1].Position.x > triangle.Vertices[2].Position.x) {
+                Swap<Vertex>(triangle.Vertices[1], triangle.Vertices[2]);
             }
             DrawTriangleFlatBottom(
                 pixelBuffer, color, 
-                triangle.Points[2].x, triangle.Points[2].y, 
-                triangle.Points[1].x, triangle.Points[1].y,
-                triangle.Points[0].x, triangle.Points[0].y
+                triangle.Vertices[2], 
+                triangle.Vertices[1],
+                triangle.Vertices[0]
             );
             return;
         }
 
         // Find the midpoint that splits triangle into flat top and flat bottom
 
-        f32 t = Unlerp(triangle.Points[0].y, triangle.Points[2].y, triangle.Points[1].y);
-        f32 mx = Lerp(triangle.Points[0].x, triangle.Points[2].x, t);
+        f32 t = Unlerp(triangle.Vertices[0].Position.y, triangle.Vertices[2].Position.y, triangle.Vertices[1].Position.y);
+        f32 mx = Lerp(triangle.Vertices[0].Position.x, triangle.Vertices[2].Position.x, t);
 
-        Vec2 midpoint = {mx, triangle.Points[1].y};
+        Vec2 midpoint = {mx, triangle.Vertices[1].Position.y};
+
+        Vertex midVert = {
+            .Position = {mx, triangle.Vertices[1].Position.y, 0.0f, 0.0f},
+            .TexCoord = {0.5f, 0.5f}
+        };
 
         // Draw flat top and flat bottom.
 
-        if (midpoint.x > triangle.Points[1].x) {
+        if (midpoint.x > triangle.Vertices[1].Position.x) {
             DrawTriangleFlatTop(
                 pixelBuffer, color, 
-                triangle.Points[2].x, triangle.Points[2].y, 
-                triangle.Points[1].x, triangle.Points[1].y, 
-                midpoint.x, midpoint.y
+                triangle.Vertices[2], 
+                triangle.Vertices[1], 
+                midVert
             );
 
             DrawTriangleFlatBottom(
                 pixelBuffer, color, 
-                triangle.Points[0].x, triangle.Points[0].y, 
-                triangle.Points[1].x, triangle.Points[1].y, 
-                midpoint.x, midpoint.y
+                triangle.Vertices[0], 
+                triangle.Vertices[1], 
+                midVert
             );
         } else {
             DrawTriangleFlatTop(
                 pixelBuffer, color, 
-                triangle.Points[2].x, triangle.Points[2].y, 
-                midpoint.x, midpoint.y,
-                triangle.Points[1].x, triangle.Points[1].y
+                triangle.Vertices[2], 
+                midVert,
+                triangle.Vertices[1]
             );
 
             DrawTriangleFlatBottom(
                 pixelBuffer, color, 
-                triangle.Points[0].x, triangle.Points[0].y, 
-                midpoint.x, midpoint.y,
-                triangle.Points[1].x, triangle.Points[1].y
+                triangle.Vertices[0], 
+                midVert,
+                triangle.Vertices[1]
             );
         }
+    }
+
+    void GraphicsDevice::DrawTriangleTextured(PixelBuffer& pixelBuffer, const Texture& texture, Triangle triangle) {
+
     }
 
     void GraphicsDevice::DrawRect(PixelBuffer& pixelBuffer, Color color, const Rect& rect) {
@@ -171,19 +180,19 @@ namespace Ace {
     void GraphicsDevice::DrawTriangleFlatBottom(
         PixelBuffer& pixelBuffer, 
         Color color, 
-        i32 topX, i32 topY,
-        i32 bottomLeftX, i32 bottomLeftY, 
-        i32 bottomRightX, i32 bottomRightY
+        Vertex top,
+        Vertex bottomLeft, 
+        Vertex bottomRight
     ) {
         u32 uColor = color.U32_ARGB();
 
-        f32 invSlopeLeft = (f32)(bottomLeftX - topX)/(bottomLeftY - topY);
-        f32 invSlopeRight = (f32)(bottomRightX - topX)/(bottomRightY - topY);
+        f32 invSlopeLeft = (f32)(bottomLeft.Position.x - top.Position.x)/(bottomLeft.Position.y - top.Position.y);
+        f32 invSlopeRight = (f32)(bottomRight.Position.x - top.Position.x)/(bottomRight.Position.y - top.Position.y);
 
-        f32 startX = topX;
-        f32 endX = topX;
+        f32 startX = top.Position.x;
+        f32 endX = top.Position.x;
 
-        for (i32 y = topY; y <= bottomRightY; y++) {
+        for (i32 y = top.Position.y; y <= bottomRight.Position.y; y++) {
             for (i32 x = startX; x <= round(endX); x++) {
                 pixelBuffer.SetPixel(x, y, uColor);
             }
@@ -192,26 +201,22 @@ namespace Ace {
         }
     }
 
-    void GraphicsDevice::DrawTriangleTextured(PixelBuffer& pixelBuffer, const Texture& texture, Triangle triangle) {
-
-    }
-
     void GraphicsDevice::DrawTriangleFlatTop(
         PixelBuffer& pixelBuffer, 
         Color color,
-        i32 bottomX, i32 bottomY,
-        i32 topLeftX, i32 topLeftY, 
-        i32 topRightX, i32 topRightY 
+        Vertex bottom,
+        Vertex topLeft, 
+        Vertex topRight 
     ) {
         u32 uColor = color.U32_ARGB();
 
-        f32 invSlopeLeft = (f32)(bottomX - topLeftX)/(bottomY - topLeftY);
-        f32 invSlopeRight = (f32)(bottomX - topRightX)/(bottomY - topRightY);
+        f32 invSlopeLeft = (f32)(bottom.Position.x - topLeft.Position.x)/(bottom.Position.y - topLeft.Position.y);
+        f32 invSlopeRight = (f32)(bottom.Position.x - topRight.Position.x)/(bottom.Position.y - topRight.Position.y);
 
-        f32 startX = bottomX;
-        f32 endX = bottomX;
+        f32 startX = bottom.Position.x;
+        f32 endX = bottom.Position.x;
 
-        for (i32 y = bottomY; y >= topRightY; y--) {
+        for (i32 y = bottom.Position.y; y >= topRight.Position.y; y--) {
             for (i32 x = startX; x <= round(endX); x++) {
                 pixelBuffer.SetPixel(x, y, uColor);
             }

@@ -9,6 +9,7 @@ namespace Ace {
     struct Triangle;
     struct Color;
     struct Texture;
+    struct Vertex;
     
     class GraphicsDevice {
         public:
@@ -30,17 +31,17 @@ namespace Ace {
             static void DrawTriangleFlatBottom(
                 PixelBuffer& pixelBuffer, 
                 Color color, 
-                i32 topX, i32 topY,
-                i32 bottomLeftX, i32 bottomLeftY, 
-                i32 bottomRightX, i32 bottomRightY
+                Vertex top,
+                Vertex bottomLeft, 
+                Vertex bottomRight
             );
             
             static void DrawTriangleFlatTop(
                 PixelBuffer& pixelBuffer, 
                 Color color,
-                i32 bottomX, i32 bottomY,
-                i32 topLeftX, i32 topLeftY, 
-                i32 topRightX, i32 topRightY 
+                Vertex bottom,
+                Vertex topLeft, 
+                Vertex topRight 
             );
     };
 }
