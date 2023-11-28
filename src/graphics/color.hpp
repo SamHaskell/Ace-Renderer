@@ -12,7 +12,7 @@ namespace Ace {
         f32 b = 1.0f;
         f32 a = 1.0f;
 
-        u32 U32_ARGB();
+        u32 U32_RGBA();
 
         inline static Color White() { return {1.0f, 1.0f, 1.0f, 1.0f}; }
         inline static Color Black() { return {0.0f, 0.0f, 0.0f, 1.0f}; }

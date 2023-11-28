@@ -26,24 +26,5 @@ namespace Ace {
 
             static void DrawRect(PixelBuffer& pixelBuffer, Color color, const Rect& rect);
             static void DrawRectFill(PixelBuffer& pixelBuffer, Color color, const Rect& rect);
-        
-        private:
-            static void DrawTriangleFlatBottom(
-                PixelBuffer& pixelBuffer, 
-                DepthBuffer& depthBuffer, 
-                Color color, 
-                Vertex top,
-                Vertex bottomLeft, 
-                Vertex bottomRight
-            );
-            
-            static void DrawTriangleFlatTop(
-                PixelBuffer& pixelBuffer, 
-                DepthBuffer& depthBuffer, 
-                Color color,
-                Vertex bottom,
-                Vertex topLeft, 
-                Vertex topRight 
-            );
     };
 }
