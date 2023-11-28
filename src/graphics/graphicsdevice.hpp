@@ -20,9 +20,9 @@ namespace Ace {
 
             static void DrawLine(PixelBuffer& pixelBuffer, Color color, Vec2 start, Vec2 end);
 
-            static void DrawTriangle(PixelBuffer& pixelBuffer, Color color, const Triangle& triangle);
-            static void DrawTriangleFill(PixelBuffer& pixelBuffer, Color color, Triangle triangle);
-            static void DrawTriangleTextured(PixelBuffer& pixelBuffer, const Texture& texture, Triangle triangle);
+            static void DrawTriangle(PixelBuffer& pixelBuffer, DepthBuffer& depthBuffer, Color color, const Triangle& triangle);
+            static void DrawTriangleFill(PixelBuffer& pixelBuffer, DepthBuffer& depthBuffer, Color color, Triangle triangle);
+            static void DrawTriangleTextured(PixelBuffer& pixelBuffer, DepthBuffer& depthBuffer, const Texture& texture, Triangle triangle);
 
             static void DrawRect(PixelBuffer& pixelBuffer, Color color, const Rect& rect);
             static void DrawRectFill(PixelBuffer& pixelBuffer, Color color, const Rect& rect);
@@ -30,6 +30,7 @@ namespace Ace {
         private:
             static void DrawTriangleFlatBottom(
                 PixelBuffer& pixelBuffer, 
+                DepthBuffer& depthBuffer, 
                 Color color, 
                 Vertex top,
                 Vertex bottomLeft, 
@@ -38,6 +39,7 @@ namespace Ace {
             
             static void DrawTriangleFlatTop(
                 PixelBuffer& pixelBuffer, 
+                DepthBuffer& depthBuffer, 
                 Color color,
                 Vertex bottom,
                 Vertex topLeft, 

@@ -105,14 +105,14 @@ namespace Ace {
             ~AceRenderer() = default;
 
             void Initialise() override {
-                m_CubeMesh = Mesh::Load("assets/crab.obj");
+                m_CubeMesh = Mesh::Load("assets/f117.obj");
                 m_CubeMesh->Position = { 0.0f, 0.0f, 0.0f };
                 m_CubeMesh->Rotation = { 0.0f, 0.0f, 0.0f };
                 m_CameraPosition = { 0.0f, 0.0f, 5.0f };
 
                 m_DirectionalLight.Direction = Normalised({1.0f, -1.0f, -1.0f});
 
-                m_CubeTexture = Texture::Load("assets/crab.png");
+                m_CubeTexture = Texture::Load("assets/f117.png");
             }
 
             void Shutdown() override {
@@ -120,16 +120,18 @@ namespace Ace {
             }
 
             void Update(f64 dt) override {
-                m_CubeMesh->Rotation += {0.0f * (f32)dt, 20.0f * (f32)dt, 00.0f * (f32)dt};
+                m_CubeMesh->Rotation += {10.0f * (f32)dt, 20.0f * (f32)dt, 00.0f * (f32)dt};
                 m_DebugInfo.FrameTime = dt;
             }
 
-            void Render(PixelBuffer& pixelBuffer) override {
+            void Render(PixelBuffer& pixelBuffer, DepthBuffer& depthBuffer) override {
                 Vec2 screenCenter = {(f32)pixelBuffer.Width / 2.0f, (f32)pixelBuffer.Height / 2.0f};
                 
                 m_TrianglesToRender.clear();
 
                 pixelBuffer.Clear(0xFF111111);
+                depthBuffer.Clear();
+
                 GraphicsDevice::DrawGrid(pixelBuffer, {0.4f, 0.4f, 0.4f, 1.0f}, 64, 64);
 
                 for (i32 i = 0; i < m_CubeMesh->Faces.size(); i++) {
@@ -239,6 +241,7 @@ namespace Ace {
                     if (m_RenderFlags.Shaded) {
                         GraphicsDevice::DrawTriangleTextured(
                             pixelBuffer,
+                            depthBuffer,
                             *m_CubeTexture,
                             triangle
                         );
@@ -247,6 +250,7 @@ namespace Ace {
                     if (m_RenderFlags.WireFrame) {
                         GraphicsDevice::DrawTriangle(
                             pixelBuffer,
+                            depthBuffer,
                             {0.0, 1.0, 0.0, 1.0},
                             triangle
                         );

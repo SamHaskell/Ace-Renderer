@@ -42,4 +42,45 @@ namespace Ace {
             }
         }
     };
+
+    struct DepthBuffer {
+        f32* Data;
+        const u32 Width;
+        const u32 Height;
+
+        DepthBuffer(u32 width, u32 height) : Width(width), Height(height) {
+            Data = new f32[Width * Height];
+        }
+
+        ~DepthBuffer() {
+            delete[] Data;
+        }
+
+        DepthBuffer(const DepthBuffer&) = delete;
+        DepthBuffer& operator=(DepthBuffer const&) = delete;
+
+        /*
+            Sets the pixel at (i, j) to the specified value. If specified coordinates are out of bounds, do nothing.
+        */
+
+        inline void SetValue(u32 i, u32 j, f32 value) {
+            if ((i < Width) && (j < Height)) {
+                Data[j * Width + i] = value;
+                return;
+            }
+        }
+
+        inline f32 GetValue(u32 i, u32 j) {
+            if ((i >= Width) || (j >= Height)) {
+                return 0.0f;
+            }
+            return Data[j * Width + i];
+        }
+
+        inline void Clear() {
+            for (i32 i = 0; i < Width * Height; i++) {
+                Data[i] = -1.0f;
+            }
+        }
+    };
 };

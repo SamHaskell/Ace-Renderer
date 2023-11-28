@@ -14,7 +14,7 @@ namespace Ace {
         return out;
     }
 
-    Vec2 Triangle::InterpolatedUV(Vec3 barycentricWeights) {
+    Vec3 Triangle::InterpolatedUVW(Vec3 barycentricWeights) {
 
         f32 interpolatedInvW = (
             (1.0f / Vertices[0].Position.w) * barycentricWeights.x +
@@ -22,12 +22,18 @@ namespace Ace {
             (1.0f / Vertices[2].Position.w) * barycentricWeights.z
         );
 
-        Vec2 interpolatedUV =   Vertices[0].TexCoord * (1.0f / Vertices[0].Position.w) * barycentricWeights.x +
-                                Vertices[1].TexCoord * (1.0f / Vertices[1].Position.w) * barycentricWeights.y +
-                                Vertices[2].TexCoord * (1.0f / Vertices[2].Position.w) * barycentricWeights.z;
+        Vec3 interpolatedUVW = {
+            Vertices[0].TexCoord.x * (1.0f / Vertices[0].Position.w) * barycentricWeights.x / interpolatedInvW +
+            Vertices[1].TexCoord.x * (1.0f / Vertices[1].Position.w) * barycentricWeights.y / interpolatedInvW +
+            Vertices[2].TexCoord.x * (1.0f / Vertices[2].Position.w) * barycentricWeights.z / interpolatedInvW,
 
-        interpolatedUV *= (1.0f / interpolatedInvW);
+            Vertices[0].TexCoord.y * (1.0f / Vertices[0].Position.w) * barycentricWeights.x / interpolatedInvW +
+            Vertices[1].TexCoord.y * (1.0f / Vertices[1].Position.w) * barycentricWeights.y / interpolatedInvW +
+            Vertices[2].TexCoord.y * (1.0f / Vertices[2].Position.w) * barycentricWeights.z / interpolatedInvW,
 
-        return interpolatedUV;
+            interpolatedInvW
+        };
+
+        return interpolatedUVW;
     }
 };

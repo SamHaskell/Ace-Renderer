@@ -25,6 +25,6 @@ namespace Ace {
         Color Color;
     
         Vec3 BarycentricWeights(Vec2 point);
-        Vec2 InterpolatedUV(Vec3 barycentricWeights);
+        Vec3 InterpolatedUVW(Vec3 barycentricWeights);
     };
 }

@@ -40,7 +40,7 @@ namespace Ace {
         }
     }
 
-    void GraphicsDevice::DrawTriangle(PixelBuffer& pixelBuffer, Color color, const Triangle& triangle) {
+    void GraphicsDevice::DrawTriangle(PixelBuffer& pixelBuffer, DepthBuffer& depthBuffer, Color color, const Triangle& triangle) {
         DrawLine(
             pixelBuffer,
             color,
@@ -63,7 +63,7 @@ namespace Ace {
         );
     }
 
-    void GraphicsDevice::DrawTriangleFill(PixelBuffer& pixelBuffer, Color color, Triangle triangle) {
+    void GraphicsDevice::DrawTriangleFill(PixelBuffer& pixelBuffer, DepthBuffer& depthBuffer, Color color, Triangle triangle) {
         // Sort Points top to bottom
         
         if (triangle.Vertices[0].Position.y > triangle.Vertices[1].Position.y) {
@@ -83,7 +83,7 @@ namespace Ace {
                 Swap<Vertex>(triangle.Vertices[0], triangle.Vertices[1]);
             }
             DrawTriangleFlatTop(
-                pixelBuffer, color, 
+                pixelBuffer, depthBuffer, color, 
                 triangle.Vertices[2], 
                 triangle.Vertices[0], 
                 triangle.Vertices[1]
@@ -94,7 +94,7 @@ namespace Ace {
                 Swap<Vertex>(triangle.Vertices[1], triangle.Vertices[2]);
             }
             DrawTriangleFlatBottom(
-                pixelBuffer, color, 
+                pixelBuffer, depthBuffer, color, 
                 triangle.Vertices[2], 
                 triangle.Vertices[1],
                 triangle.Vertices[0]
@@ -120,28 +120,28 @@ namespace Ace {
 
         if (midpoint.x > triangle.Vertices[1].Position.x) {
             DrawTriangleFlatTop(
-                pixelBuffer, color, 
+                pixelBuffer, depthBuffer, color, 
                 triangle.Vertices[2], 
                 triangle.Vertices[1], 
                 midVert
             );
 
             DrawTriangleFlatBottom(
-                pixelBuffer, color, 
+                pixelBuffer, depthBuffer, color, 
                 triangle.Vertices[0], 
                 triangle.Vertices[1], 
                 midVert
             );
         } else {
             DrawTriangleFlatTop(
-                pixelBuffer, color, 
+                pixelBuffer, depthBuffer, color, 
                 triangle.Vertices[2], 
                 midVert,
                 triangle.Vertices[1]
             );
 
             DrawTriangleFlatBottom(
-                pixelBuffer, color, 
+                pixelBuffer, depthBuffer, color, 
                 triangle.Vertices[0], 
                 midVert,
                 triangle.Vertices[1]
@@ -149,7 +149,7 @@ namespace Ace {
         }
     }
 
-    void GraphicsDevice::DrawTriangleTextured(PixelBuffer& pixelBuffer, const Texture& texture, Triangle triangle) {
+    void GraphicsDevice::DrawTriangleTextured(PixelBuffer& pixelBuffer, DepthBuffer& depthBuffer, const Texture& texture, Triangle triangle) {
         // Sort Points top to bottom
 
         Vec4 v0 = triangle.Vertices[0].Position;
@@ -190,9 +190,12 @@ namespace Ace {
             if (startX > endX) { Swap<i32>(startX, endX); }
             for (i32 x = startX; x < endX; x++) {
                 Vec3 weights = triangle.BarycentricWeights({(f32)x, (f32)y});
-                Vec2 uv = triangle.InterpolatedUV(weights);
-                u32 color = texture.Sample(uv.x, uv.y);
-                pixelBuffer.SetPixel(x, y, color);
+                Vec3 uvw = triangle.InterpolatedUVW(weights);
+                u32 color = texture.Sample(uvw.x, uvw.y);
+                if (uvw.z > depthBuffer.GetValue(x, y)) {
+                    depthBuffer.SetValue(x, y, uvw.z);
+                    pixelBuffer.SetPixel(x, y, color);
+                }
             }
         }
 
@@ -210,12 +213,14 @@ namespace Ace {
             if (startX > endX) { Swap<i32>(startX, endX); }
             for (i32 x = startX; x < endX; x++) {
                 Vec3 weights = triangle.BarycentricWeights({(f32)x, (f32)y});
-                Vec2 uv = triangle.InterpolatedUV(weights);
-                u32 color = texture.Sample(uv.x, uv.y);
-                pixelBuffer.SetPixel(x, y, color);
+                Vec3 uvw = triangle.InterpolatedUVW(weights);
+                u32 color = texture.Sample(uvw.x, uvw.y);
+                if (uvw.z > depthBuffer.GetValue(x, y)) {
+                    depthBuffer.SetValue(x, y, uvw.z);
+                    pixelBuffer.SetPixel(x, y, color);
+                }
             }
         }
-
     }
 
     void GraphicsDevice::DrawRect(PixelBuffer& pixelBuffer, Color color, const Rect& rect) {
@@ -248,6 +253,7 @@ namespace Ace {
 
     void GraphicsDevice::DrawTriangleFlatBottom(
         PixelBuffer& pixelBuffer, 
+        DepthBuffer& depthBuffer, 
         Color color, 
         Vertex top,
         Vertex bottomLeft, 
@@ -278,6 +284,7 @@ namespace Ace {
 
     void GraphicsDevice::DrawTriangleFlatTop(
         PixelBuffer& pixelBuffer, 
+        DepthBuffer& depthBuffer, 
         Color color,
         Vertex bottom,
         Vertex topLeft, 

@@ -63,6 +63,7 @@ namespace Ace {
         */
 
         m_PixelBuffer = new PixelBuffer(windowWidth, windowHeight);
+        m_DepthBuffer = new DepthBuffer(windowWidth, windowHeight);
 
         m_PixelBufferTexture = SDL_CreateTexture(
             m_Renderer,
@@ -106,6 +107,7 @@ namespace Ace {
 
         SDL_DestroyTexture(m_PixelBufferTexture);
         delete m_PixelBuffer;
+        delete m_DepthBuffer;
 
         SDL_DestroyRenderer(m_Renderer);
         SDL_DestroyWindow(m_Window);
@@ -145,7 +147,7 @@ namespace Ace {
             SDL_SetRenderDrawColor(m_Renderer, 255, 0, 255, 255);
             SDL_RenderClear(m_Renderer);
 
-            Render(*m_PixelBuffer);
+            Render(*m_PixelBuffer, *m_DepthBuffer);
 
             i32 windowWidth;
             i32 windowHeight;
