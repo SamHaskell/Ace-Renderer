@@ -231,12 +231,6 @@ namespace Ace {
 
                 m_DebugInfo.TriangleCount = m_TrianglesToRender.size();
 
-                // Sort triangles by depth (NOTE: std::sort for now, optimise later)
-
-                std::sort(m_TrianglesToRender.begin(), m_TrianglesToRender.end(), [] (const Triangle& a, const Triangle& b) {
-                    return a.Depth < b.Depth;
-                });
-
                 for (auto& triangle : m_TrianglesToRender) {
                     if (m_RenderFlags.Shaded) {
                         GraphicsDevice::DrawTriangleTextured(
