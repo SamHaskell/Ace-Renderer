@@ -74,30 +74,6 @@ namespace Ace {
         );
     }
 
-    Vec3 RotateX(const Vec3& v, f32 angle) {
-        return Vec3(
-            v.x,
-            v.y * cos(angle) - v.z * sin(angle),
-            v.y * sin(angle) + v.z * cos(angle)
-        );
-    }
-
-    Vec3 RotateY(const Vec3& v, f32 angle) {
-        return Vec3(
-            v.x * cos(angle) - v.z * sin(angle),
-            v.y,
-            v.x * sin(angle) + v.z * cos(angle)
-        );
-    }
-
-    Vec3 RotateZ(const Vec3& v, f32 angle) {
-        return Vec3(
-            v.x * cos(angle) - v.y * sin(angle),
-            v.x * sin(angle) + v.y * cos(angle),
-            v.z
-        );
-    }
-
     Vec3::Vec3(Vec4 vec) : x(vec.x), y(vec.y), z(vec.z) {}
 
     Vec4 Lerp(const Vec4& u, const Vec4& v, f32 t) {

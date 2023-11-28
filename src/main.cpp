@@ -8,6 +8,7 @@
 #include "graphics/mesh.hpp"
 #include "graphics/color.hpp"
 #include "graphics/texture.hpp"
+#include "graphics/camera.hpp"
 
 #include "imgui.h"
 
@@ -28,6 +29,7 @@ namespace Ace {
         bool Shaded = true;
         bool Culling = true;
         bool Vertices = false;
+        bool ShowDepthBuffer = false;
     };
 
     class AceRenderer : public App {
@@ -36,14 +38,13 @@ namespace Ace {
             ~AceRenderer() = default;
 
             void Initialise() override {
-                m_CubeMesh = Mesh::Load("assets/f117.obj");
+                m_CubeMesh = Mesh::Load("assets/crab.obj");
                 m_CubeMesh->Position = { 0.0f, 0.0f, 0.0f };
                 m_CubeMesh->Rotation = { 0.0f, 0.0f, 0.0f };
-                m_CameraPosition = { 0.0f, 0.0f, 5.0f };
 
-                m_DirectionalLight.Direction = Normalised({1.0f, -1.0f, -1.0f});
+                m_DirectionalLight.Direction = Normalised({1.0f, -1.0f, 1.0f});
 
-                m_CubeTexture = Texture::Load("assets/f117.png");
+                m_CubeTexture = Texture::Load("assets/crab.png");
             }
 
             void Shutdown() override {
@@ -51,7 +52,7 @@ namespace Ace {
             }
 
             void Update(f64 dt) override {
-                m_CubeMesh->Rotation += {10.0f * (f32)dt, 20.0f * (f32)dt, 00.0f * (f32)dt};
+                m_CubeMesh->Rotation += {0.0f * (f32)dt, 0.0f * (f32)dt, 0.0f * (f32)dt};
                 m_DebugInfo.FrameTime = dt;
             }
 
@@ -91,25 +92,26 @@ namespace Ace {
                     Vec3 normal = Cross(vec_ab, vec_ac);
                     normal.NormaliseInPlace();
                     if (m_RenderFlags.Culling) {
-                        Vec3 camera = m_CameraPosition - Vec3(transformedVerts[0]);
+                        Vec3 camera = m_MainCamera.Position - Vec3(transformedVerts[0]);
                         if (Dot(normal, camera) < 0.0f) {
                             continue;
                         }
                     }
 
-                    Mat4 view = Mat4::Translation( - m_CameraPosition);
+                    Mat4 view = Mat4::Translation( - m_MainCamera.Position);
 
                     transformedVerts[0] = view * transformedVerts[0];
                     transformedVerts[1] = view * transformedVerts[1];
                     transformedVerts[2] = view * transformedVerts[2];
 
-                    // Get depth-value for each triangle
-
-                    f32 depth = (transformedVerts[0].z + transformedVerts[1].z + transformedVerts[2].z) / 3.0f;
-
                     // Project
 
-                    Mat4 proj = Mat4::Perspective(60.0f, (f32)pixelBuffer.Width / (f32)pixelBuffer.Height, 0.1f, 100.0f);
+                    Mat4 proj = Mat4::Perspective(
+                        m_MainCamera.FovY,
+                        (f32)pixelBuffer.Width / (f32)pixelBuffer.Height, 
+                        m_MainCamera.ZNear,
+                        m_MainCamera.ZFar
+                    );
 
                     Vec4 projectedVerts[3] = {
                         proj * transformedVerts[0],
@@ -154,7 +156,6 @@ namespace Ace {
                                     .TexCoord = { m_CubeMesh->TexCoords[face.cUV] }
                                 }
                             },
-                            .Depth = depth,
                             .Color = color
                         }
                     );
@@ -197,6 +198,16 @@ namespace Ace {
                         }
                     }
                 }
+                
+                if (m_RenderFlags.ShowDepthBuffer) {
+                    for (i32 i = 0; i < pixelBuffer.Width; i++) {
+                        for (i32 j = 0; j < pixelBuffer.Height; j++) {
+                            f32 depthVal = depthBuffer.GetValue(i, j);
+                            Color depthColor = {depthVal, depthVal, depthVal, 1.0f};
+                            pixelBuffer.SetPixel(i, j, depthColor.U32_RGBA());
+                        }
+                    }
+                }
             }
 
             void DrawGUI() override {
@@ -205,6 +216,7 @@ namespace Ace {
                 ImGui::Checkbox("Shaded", &m_RenderFlags.Shaded);
                 ImGui::Checkbox("Backface Culling", &m_RenderFlags.Culling);
                 ImGui::Checkbox("Vertices", &m_RenderFlags.Vertices);
+                ImGui::Checkbox("Overlay Depth Buffer", &m_RenderFlags.ShowDepthBuffer);
                 ImGui::End();
 
                 ImGui::Begin("Debug Information");
@@ -218,7 +230,7 @@ namespace Ace {
             }
             
         private:
-            Vec3 m_CameraPosition;
+            Camera m_MainCamera;
             std::vector<Triangle> m_TrianglesToRender;
             Mesh* m_CubeMesh;
             Texture* m_CubeTexture;

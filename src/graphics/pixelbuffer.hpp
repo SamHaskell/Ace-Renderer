@@ -79,7 +79,7 @@ namespace Ace {
 
         inline void Clear() {
             for (i32 i = 0; i < Width * Height; i++) {
-                Data[i] = -1.0f;
+                Data[i] = 0.0f;
             }
         }
     };
