@@ -105,7 +105,7 @@ namespace Ace {
             ~AceRenderer() = default;
 
             void Initialise() override {
-                m_CubeMesh = Mesh::Load("assets/cube.obj");
+                m_CubeMesh = Mesh::Load("assets/f22.obj");
                 m_CubeMesh->Position = { 0.0f, 0.0f, 0.0f };
                 m_CubeMesh->Rotation = { 0.0f, 0.0f, 0.0f };
                 m_CameraPosition = { 0.0f, 0.0f, 5.0f };

@@ -45,8 +45,8 @@ STATIC_ASSERT(sizeof(i64) == 8, "Expected i64 to be 8 byte(s).");
 STATIC_ASSERT(sizeof(f32) == 4, "Expected f32 to be 4 byte(s).");
 STATIC_ASSERT(sizeof(f64) == 8, "Expected f64 to be 8 byte(s).");
 
-#define MIN(x, y) ((x) < (y)) ? (x) : (y)
-#define MAX(x, y) ((x) > (y)) ? (x) : (y)
+#define MIN(x, y) (((x) < (y)) ? (x) : (y))
+#define MAX(x, y) (((x) > (y)) ? (x) : (y))
 
 constexpr f64 PI = 3.14159265358979323846264;
 constexpr f64 TAU = 2 * PI;

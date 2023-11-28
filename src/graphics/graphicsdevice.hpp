@@ -43,21 +43,5 @@ namespace Ace {
                 Vertex topLeft, 
                 Vertex topRight 
             );
-
-            static void DrawTriangleFlatBottomTextured(
-                PixelBuffer& pixelBuffer,
-                const Texture& texture,
-                Vertex top,
-                Vertex bottomLeft,
-                Vertex bottomRight
-            );
-
-            static void DrawTriangleFlatTopTextured(
-                PixelBuffer& pixelBuffer,
-                const Texture& texture,
-                Vertex bottom,
-                Vertex topLeft,
-                Vertex topRight
-            );
     };
 }
