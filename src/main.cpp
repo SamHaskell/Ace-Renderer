@@ -105,14 +105,14 @@ namespace Ace {
             ~AceRenderer() = default;
 
             void Initialise() override {
-                m_CubeMesh = Mesh::Load("assets/f22.obj");
+                m_CubeMesh = Mesh::Load("assets/crab.obj");
                 m_CubeMesh->Position = { 0.0f, 0.0f, 0.0f };
                 m_CubeMesh->Rotation = { 0.0f, 0.0f, 0.0f };
                 m_CameraPosition = { 0.0f, 0.0f, 5.0f };
 
                 m_DirectionalLight.Direction = Normalised({1.0f, -1.0f, -1.0f});
 
-                m_CubeTexture = Texture::Create(g_TexData, g_TexWidth, g_TexHeight);
+                m_CubeTexture = Texture::Load("assets/crab.png");
             }
 
             void Shutdown() override {
@@ -120,7 +120,7 @@ namespace Ace {
             }
 
             void Update(f64 dt) override {
-                m_CubeMesh->Rotation += {0.0f * (f32)dt, -20.0f * (f32)dt, 0.0f * (f32)dt};
+                m_CubeMesh->Rotation += {0.0f * (f32)dt, 20.0f * (f32)dt, 00.0f * (f32)dt};
                 m_DebugInfo.FrameTime = dt;
             }
 

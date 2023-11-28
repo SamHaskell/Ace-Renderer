@@ -1,6 +1,11 @@
 #include "graphics/texture.hpp"
 #include "maths/maths.hpp"
 
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
+
+#include <string>
+
 namespace Ace {
     Texture* Texture::Create(u32* data, u32 width, u32 height) {
         Texture* tex = new Texture(width, height);
@@ -15,12 +20,17 @@ namespace Ace {
     }
 
     Texture* Texture::Load(const std::string& path) {
-        // TODO: Implement loading via stb_image.h
+        stbi_set_flip_vertically_on_load(true);
+        i32 width, height, nChannels;
+        u8* data = stbi_load(path.c_str(), &width, &height, &nChannels, 4);
+        Texture* tex = new Texture(width, height);
+        tex->Data = (u32*)data;
+        return tex;
     }
 
     u32 Texture::Sample(f32 u, f32 v) const {
-        u32 row = Clamp(v, 0.0f, 1.0f) * Height;
-        u32 col = Clamp(u, 0.0f, 1.0f) * Width;
+        u32 row = (u32)(v * Height) % Height;
+        u32 col = (u32)(u * Width) % Width;
         return Data[(row * Width) + col];
     }
 };

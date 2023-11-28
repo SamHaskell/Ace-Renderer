@@ -33,7 +33,6 @@ namespace Ace {
                 // We have a tex-coord!
                 Vec2 uv;
                 sscanf(line, "vt %f %f", &uv.x, &uv.y);
-                uv.y = 1.0f - uv.y;
                 mesh->TexCoords.push_back(uv);
             }
 

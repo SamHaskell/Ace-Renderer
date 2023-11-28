@@ -66,7 +66,7 @@ namespace Ace {
 
         m_PixelBufferTexture = SDL_CreateTexture(
             m_Renderer,
-            SDL_PIXELFORMAT_ARGB8888,
+            SDL_PIXELFORMAT_RGBA32,
             SDL_TEXTUREACCESS_STREAMING,
             windowWidth, windowHeight
         );
