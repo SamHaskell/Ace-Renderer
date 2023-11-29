@@ -66,6 +66,8 @@ namespace Ace {
 
                 GraphicsDevice::DrawGrid(pixelBuffer, {0.4f, 0.4f, 0.4f, 1.0f}, 64, 64);
 
+                Mat4 view = m_MainCamera.GetViewMatrix();
+
                 for (i32 i = 0; i < m_CubeMesh->Faces.size(); i++) {
                     Face face = m_CubeMesh->Faces[i];
 
@@ -97,8 +99,6 @@ namespace Ace {
                             continue;
                         }
                     }
-
-                    Mat4 view = Mat4::Translation( - m_MainCamera.Position);
 
                     transformedVerts[0] = view * transformedVerts[0];
                     transformedVerts[1] = view * transformedVerts[1];

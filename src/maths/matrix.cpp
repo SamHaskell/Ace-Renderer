@@ -110,4 +110,19 @@ namespace Ace {
         return m;
     }
 
+    Mat4 Mat4::LookAt(Vec3 eye, Vec3 target, Vec3 up) {
+        Vec3 z = Normalised(target - eye);
+        Vec3 x = Normalised(Cross(up, z));
+        Vec3 y = Cross(z, x);
+
+        Mat4 view = {
+            x.x, x.y, x.z, 0.0f,
+            y.x, y.y, y.z, 0.0f,
+            z.x, z.y, z.z, 0.0f,
+            -Dot(x, eye), -Dot(y, eye), -Dot(z, eye), 1.0f
+        };
+
+        return view;
+    }
+
 }

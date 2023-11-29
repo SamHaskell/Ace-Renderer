@@ -11,5 +11,6 @@ namespace Ace {
         f32 ZNear = 1.0f;
         f32 ZFar = 100.0f;
 
+        Mat4 GetViewMatrix(Vec3 up = {0.0f, 1.0f, 0.0f});
     };
 };

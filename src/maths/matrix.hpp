@@ -1,6 +1,7 @@
 #pragma once
 
 #include "core/defines.hpp"
+#include "maths/vector.hpp"
 
 namespace Ace {
     struct Vec3;
@@ -21,5 +22,7 @@ namespace Ace {
         static Mat4 Translation(Vec3 translation);
 
         static Mat4 Perspective(f32 fovY, f32 aspect, f32 zNear, f32 zFar);
+
+        static Mat4 LookAt(Vec3 eye, Vec3 target, Vec3 up = {0.0f, 1.0f, 0.0f});
     };
 };
