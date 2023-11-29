@@ -1,6 +1,7 @@
 #pragma once
 
 #include "core/defines.hpp"
+#include "core/events.hpp"
 #include "graphics/pixelbuffer.hpp"
 
 struct SDL_Window;
@@ -38,7 +39,7 @@ namespace Ace {
             virtual void Update(f64 dt) = 0;
             virtual void Render(PixelBuffer& pixelBuffer, DepthBuffer& depthBuffer) = 0;
             virtual void DrawGUI() = 0;
-            virtual void OnEvent() = 0;
+            virtual void OnEvent(Event& e) = 0;
 
         private:
             bool m_Running;

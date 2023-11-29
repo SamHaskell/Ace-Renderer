@@ -124,14 +124,40 @@ namespace Ace {
                 ImGui_ImplSDL2_ProcessEvent(&e);
                 switch (e.type) {
                     case SDL_QUIT:
+                    {
                         m_Running = false;
                         break;
+                    }
                     case SDL_KEYDOWN:
+                    {
                         if (e.key.keysym.sym == SDLK_ESCAPE) {
                             m_Running = false;
                             break;
                         }
-                    
+
+                        Event event = {
+                            .Type = EventType::Key,
+                            .Key = {
+                                .KeyCode = KeyCode(e.key.keysym.sym),
+                                .Pressed = (e.key.state == SDL_PRESSED),
+                                .SystemRepeat = (e.key.repeat != 0)
+                            }
+                        };
+                        OnEvent(event);
+                    }
+                        
+                    case SDL_KEYUP:
+                    {
+                        Event event = {
+                            .Type = EventType::Key,
+                            .Key = {
+                                .KeyCode = KeyCode(e.key.keysym.sym),
+                                .Pressed = (e.key.state == SDL_PRESSED),
+                                .SystemRepeat = (e.key.repeat != 0)
+                            }
+                        };
+                        OnEvent(event);
+                    }
                 }
             }
         }

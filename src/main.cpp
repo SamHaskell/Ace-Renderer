@@ -225,8 +225,12 @@ namespace Ace {
                 ImGui::End();
             }
 
-            void OnEvent() override {
-
+            void OnEvent(Event& e) override {
+                switch (e.Type) {
+                    case EventType::Key:
+                        ACE_INFO("Key Event, %i", e.Key.KeyCode);
+                        break;
+                }
             }
             
         private:
