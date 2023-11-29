@@ -37,7 +37,7 @@ namespace Ace {
             }
             case FRUSTUM_NEAR:
             {
-                plane.Point = {0.0f, 0.0f, ZNear};
+                plane.Point =  {0.0f, 0.0f, ZNear};
                 plane.Normal = {0.0f, 0.0f, 1.0f};
                 break;
             }
