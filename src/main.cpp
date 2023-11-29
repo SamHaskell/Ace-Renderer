@@ -116,6 +116,14 @@ namespace Ace {
 
                     for (i32 i = 0; i < FRUSTUM_PLANE_TYPE_COUNT; i++) {
                         Plane plane = m_MainCamera.GetFrustumPlane(FrustumPlaneType(i), aspectRatio);
+
+                        f32 sdfA = Dot(transformedVerts[0], plane.Normal);
+                        f32 sdfB = Dot(transformedVerts[1], plane.Normal);
+                        f32 sdfC = Dot(transformedVerts[2], plane.Normal);
+
+                        // If only one lies outside, we end up with 2 intersections + the other 2 original vertices, so must subdivide.
+                        // If two lie outside, find the two intersections and make the new triangle.
+                        // If all three lie outside we can discard the triangle.
                     }
 
                     // Apply Projection Transformation
@@ -172,7 +180,7 @@ namespace Ace {
 
                 // Draw!
 
-                GraphicsDevice::DrawGrid(pixelBuffer, {0.4f, 0.4f, 0.4f, 1.0f}, 64, 64);
+                GraphicsDevice::DrawGrid(pixelBuffer, {0.12f, 0.12f, 0.12f, 1.0f}, 64, 64);
 
                 for (auto& triangle : m_TrianglesToRender) {
                     if (m_RenderFlags.Shaded) {
@@ -203,7 +211,7 @@ namespace Ace {
                             };
                             GraphicsDevice::DrawRectFill(
                                 pixelBuffer,
-                                {1.0, 1.0, 0.0, 1.0},
+                                {1.0, 0.6, 0.0, 1.0},
                                 rect
                             );  
                         }
