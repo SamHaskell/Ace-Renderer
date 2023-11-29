@@ -61,6 +61,7 @@ namespace Ace {
                 depthBuffer.Clear();
 
                 m_TrianglesToRender.clear();
+                m_TrianglesToProject.clear();
 
                 Mat4 view = m_MainCamera.GetViewMatrix();
 
@@ -126,12 +127,37 @@ namespace Ace {
                         // If all three lie outside we can discard the triangle.
                     }
 
+                    Color color = {1.0, 1.0, 1.0, 1.0};
+
+                    m_TrianglesToProject.push_back(
+                        {
+                            .Vertices = {
+                                {
+                                    .Position = transformedVerts[0],
+                                    .TexCoord = m_Mesh->TexCoords[face.aUV]
+                                },
+                                {
+                                    .Position = transformedVerts[1],
+                                    .TexCoord = m_Mesh->TexCoords[face.bUV]
+                                    },
+                                {
+                                    .Position = transformedVerts[2],
+                                    .TexCoord = m_Mesh->TexCoords[face.cUV]
+                                }
+                            },
+                            .Color = color
+                        }
+                    );
+                }
+
+                for (auto& triangle : m_TrianglesToProject) {
+
                     // Apply Projection Transformation
 
                     Vec4 projectedVerts[3] = {
-                        projection * transformedVerts[0],
-                        projection * transformedVerts[1],
-                        projection * transformedVerts[2]
+                        projection * triangle.Vertices[0].Position,
+                        projection * triangle.Vertices[1].Position,
+                        projection * triangle.Vertices[2].Position
                     };
 
                     // Perspective-Divide
@@ -144,14 +170,12 @@ namespace Ace {
 
                     // Shading TODO: Remove this if not continuing with lighting ...
 
-                    f32 lightingIntensity = - Dot(normal, m_DirectionalLight.Direction);
-                    lightingIntensity = Clamp(lightingIntensity + 0.3f, 0.0f, 1.0f);
+                    // f32 lightingIntensity = - Dot(normal, m_DirectionalLight.Direction);
+                    // lightingIntensity = Clamp(lightingIntensity + 0.3f, 0.0f, 1.0f);
 
-                    Color color = {0.2, 0.2, 0.8, 1.0};
-
-                    color.r *= lightingIntensity;
-                    color.g *= lightingIntensity;
-                    color.b *= lightingIntensity;
+                    // color.r *= lightingIntensity;
+                    // color.g *= lightingIntensity;
+                    // color.b *= lightingIntensity;
 
                     // Send triangle to be rastered
 
@@ -160,18 +184,18 @@ namespace Ace {
                             .Vertices = {
                                 {
                                     .Position = { (projectedVerts[0].x + 1.0f) * ((f32)pixelBuffer.Width / 2.0f), (projectedVerts[0].y + 1.0f) * ((f32)pixelBuffer.Height / 2.0f), projectedVerts[0].z, projectedVerts[0].w },
-                                    .TexCoord = { m_Mesh->TexCoords[face.aUV] }
+                                    .TexCoord = { triangle.Vertices[0].TexCoord }
                                 },
                                 {
                                     .Position = { (projectedVerts[1].x + 1.0f) * ((f32)pixelBuffer.Width / 2.0f), (projectedVerts[1].y + 1.0f) * ((f32)pixelBuffer.Height / 2.0f), projectedVerts[1].z, projectedVerts[1].w  },
-                                    .TexCoord = { m_Mesh->TexCoords[face.bUV] }
+                                    .TexCoord = { triangle.Vertices[1].TexCoord }
                                 },
                                 {
                                     .Position = { (projectedVerts[2].x + 1.0f) * ((f32)pixelBuffer.Width / 2.0f), (projectedVerts[2].y + 1.0f) * ((f32)pixelBuffer.Height / 2.0f), projectedVerts[2].z, projectedVerts[2].w  },
-                                    .TexCoord = { m_Mesh->TexCoords[face.cUV] }
+                                    .TexCoord = { triangle.Vertices[2].TexCoord }
                                 }
                             },
-                            .Color = color
+                            .Color = triangle.Color
                         }
                     );
                 }
@@ -255,6 +279,7 @@ namespace Ace {
         private:
             Camera m_MainCamera;
             std::vector<Triangle> m_TrianglesToRender;
+            std::vector<Triangle> m_TrianglesToProject;
             Mesh* m_Mesh;
             Texture* m_Texture;
             RenderFlags m_RenderFlags;
