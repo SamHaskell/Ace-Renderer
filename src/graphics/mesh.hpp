@@ -2,16 +2,12 @@
 
 #include "core/defines.hpp"
 #include "maths/vector.hpp"
-#include "graphics/triangle.hpp"
+#include "graphics/triangles.hpp"
 
 #include <vector>
 #include <string>
 
-#define CUBE_VERT_COUNT 8
-#define CUBE_FACE_COUNT 12
-
 namespace Ace {
-
     class Mesh {
         public:
             std::vector<Vec3> Vertices;

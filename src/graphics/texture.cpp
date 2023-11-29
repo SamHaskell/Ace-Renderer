@@ -6,16 +6,20 @@
 
 #include <string>
 
+/*
+    TODO: Switch to a reference counted type / shared ptr for resources.
+*/
+
 namespace Ace {
+    Texture::~Texture() {
+        if (Data != NULL) {
+            delete[] Data;
+        }
+    }
+
     Texture* Texture::Create(u32* data, u32 width, u32 height) {
         Texture* tex = new Texture(width, height);
         tex->Data = data;
-        return tex;
-    }
-
-    Texture* Texture::Create(u8* byteData, u32 width, u32 height) {
-        Texture* tex = new Texture(width, height);
-        tex->Data = (u32*)byteData;
         return tex;
     }
 

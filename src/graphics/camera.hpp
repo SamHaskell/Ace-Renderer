@@ -10,7 +10,8 @@ namespace Ace {
         FRUSTUM_TOP,
         FRUSTUM_BOTTOM,
         FRUSTUM_NEAR,
-        FRUSTUM_FAR
+        FRUSTUM_FAR,
+        FRUSTUM_PLANE_TYPE_COUNT
     };
 
     struct Camera {
@@ -21,6 +22,6 @@ namespace Ace {
         f32 ZFar = 100.0f;
 
         Mat4 GetViewMatrix(Vec3 up = {0.0f, 1.0f, 0.0f});
-        Plane GetFrustumPlane(FrustumPlaneType frustumPlaneType);
+        Plane GetFrustumPlane(FrustumPlaneType frustumPlaneType, f32 aspectRatio);
     };
 };

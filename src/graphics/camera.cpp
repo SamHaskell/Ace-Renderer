@@ -6,7 +6,7 @@ namespace Ace {
         return Mat4::LookAt(Position, Position + forward, up);
     }
 
-    Plane Camera::GetFrustumPlane(FrustumPlaneType frustumPlaneType) {
+    Plane Camera::GetFrustumPlane(FrustumPlaneType frustumPlaneType, f32 aspectRatio) {
         Plane plane;
         f32 cosHalfFOV = cos(DEG2RAD * FovY /2.0f);
         f32 sinHalfFOV = sin(DEG2RAD * FovY /2.0f);

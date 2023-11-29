@@ -1,5 +1,5 @@
 #include "graphics/graphicsdevice.hpp"
-#include "graphics/triangle.hpp"
+#include "graphics/triangles.hpp"
 #include "graphics/color.hpp"
 #include "graphics/texture.hpp"
 #include "maths/maths.hpp"

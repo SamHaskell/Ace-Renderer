@@ -38,48 +38,53 @@ namespace Ace {
             ~AceRenderer() = default;
 
             void Initialise() override {
-                m_CubeMesh = Mesh::Load("assets/crab.obj");
-                m_CubeMesh->Position = { 0.0f, 0.0f, 0.0f };
-                m_CubeMesh->Rotation = { 0.0f, 0.0f, 0.0f };
-
+                m_Mesh = Mesh::Load("assets/crab.obj");
+                m_Texture = Texture::Load("assets/crab.png");
                 m_DirectionalLight.Direction = Normalised({1.0f, -1.0f, 1.0f});
-
-                m_CubeTexture = Texture::Load("assets/crab.png");
             }
 
             void Shutdown() override {
-                delete m_CubeMesh;
+                delete m_Mesh;
+                delete m_Texture;
             }
 
             void Update(f64 dt) override {
-                m_CubeMesh->Rotation += {0.0f * (f32)dt, 0.0f * (f32)dt, 0.0f * (f32)dt};
+                m_Mesh->Rotation += {0.0f * (f32)dt, 0.0f * (f32)dt, 0.0f * (f32)dt};
                 m_DebugInfo.FrameTime = dt;
             }
 
             void Render(PixelBuffer& pixelBuffer, DepthBuffer& depthBuffer) override {
                 Vec2 screenCenter = {(f32)pixelBuffer.Width / 2.0f, (f32)pixelBuffer.Height / 2.0f};
+                f32 aspectRatio = (f32)pixelBuffer.Width / (f32)pixelBuffer.Height;
                 
-                m_TrianglesToRender.clear();
-
                 pixelBuffer.Clear(0xFF111111);
                 depthBuffer.Clear();
 
-                GraphicsDevice::DrawGrid(pixelBuffer, {0.4f, 0.4f, 0.4f, 1.0f}, 64, 64);
+                m_TrianglesToRender.clear();
 
                 Mat4 view = m_MainCamera.GetViewMatrix();
 
-                for (i32 i = 0; i < m_CubeMesh->Faces.size(); i++) {
-                    Face face = m_CubeMesh->Faces[i];
+                Mat4 projection = Mat4::Perspective(
+                    m_MainCamera.FovY,
+                    aspectRatio, 
+                    m_MainCamera.ZNear,
+                    m_MainCamera.ZFar
+                );
+
+                // Send the Mesh through the pipeline.
+
+                for (i32 i = 0; i < m_Mesh->Faces.size(); i++) {
+                    Face face = m_Mesh->Faces[i];
 
                     Vec3 faceVerts[3] = {
-                        m_CubeMesh->Vertices[face.a],
-                        m_CubeMesh->Vertices[face.b],
-                        m_CubeMesh->Vertices[face.c]
+                        m_Mesh->Vertices[face.a],
+                        m_Mesh->Vertices[face.b],
+                        m_Mesh->Vertices[face.c]
                     };
 
-                    // Transform
+                    // Apply Model Transformation
 
-                    Mat4 model = Mat4::Translation(m_CubeMesh->Position) * Mat4::Rotation(m_CubeMesh->Rotation) * Mat4::Scale(m_CubeMesh->Scale);
+                    Mat4 model = Mat4::Translation(m_Mesh->Position) * Mat4::Rotation(m_Mesh->Rotation) * Mat4::Scale(m_Mesh->Scale);
 
                     Vec4 transformedVerts[3] = {
                         model * faceVerts[0],
@@ -92,6 +97,7 @@ namespace Ace {
                     Vec3 vec_ab = Vec3(transformedVerts[1]) - Vec3(transformedVerts[0]);
                     Vec3 vec_ac = Vec3(transformedVerts[2]) - Vec3(transformedVerts[0]);
                     Vec3 normal = Cross(vec_ab, vec_ac);
+
                     normal.NormaliseInPlace();
                     if (m_RenderFlags.Culling) {
                         Vec3 camera = m_MainCamera.Position - Vec3(transformedVerts[0]);
@@ -100,23 +106,24 @@ namespace Ace {
                         }
                     }
 
+                    // Apply View Transformation
+
                     transformedVerts[0] = view * transformedVerts[0];
                     transformedVerts[1] = view * transformedVerts[1];
                     transformedVerts[2] = view * transformedVerts[2];
 
-                    // Project
+                    // Clip
 
-                    Mat4 proj = Mat4::Perspective(
-                        m_MainCamera.FovY,
-                        (f32)pixelBuffer.Width / (f32)pixelBuffer.Height, 
-                        m_MainCamera.ZNear,
-                        m_MainCamera.ZFar
-                    );
+                    for (i32 i = 0; i < FRUSTUM_PLANE_TYPE_COUNT; i++) {
+                        Plane plane = m_MainCamera.GetFrustumPlane(FrustumPlaneType(i), aspectRatio);
+                    }
+
+                    // Apply Projection Transformation
 
                     Vec4 projectedVerts[3] = {
-                        proj * transformedVerts[0],
-                        proj * transformedVerts[1],
-                        proj * transformedVerts[2]
+                        projection * transformedVerts[0],
+                        projection * transformedVerts[1],
+                        projection * transformedVerts[2]
                     };
 
                     // Perspective-Divide
@@ -127,7 +134,7 @@ namespace Ace {
                         projectedVerts[i].z = projectedVerts[i].z / projectedVerts[i].w;
                     }
 
-                    // Shading
+                    // Shading TODO: Remove this if not continuing with lighting ...
 
                     f32 lightingIntensity = - Dot(normal, m_DirectionalLight.Direction);
                     lightingIntensity = Clamp(lightingIntensity + 0.3f, 0.0f, 1.0f);
@@ -145,15 +152,15 @@ namespace Ace {
                             .Vertices = {
                                 {
                                     .Position = { (projectedVerts[0].x + 1.0f) * ((f32)pixelBuffer.Width / 2.0f), (projectedVerts[0].y + 1.0f) * ((f32)pixelBuffer.Height / 2.0f), projectedVerts[0].z, projectedVerts[0].w },
-                                    .TexCoord = { m_CubeMesh->TexCoords[face.aUV] }
+                                    .TexCoord = { m_Mesh->TexCoords[face.aUV] }
                                 },
                                 {
                                     .Position = { (projectedVerts[1].x + 1.0f) * ((f32)pixelBuffer.Width / 2.0f), (projectedVerts[1].y + 1.0f) * ((f32)pixelBuffer.Height / 2.0f), projectedVerts[1].z, projectedVerts[1].w  },
-                                    .TexCoord = { m_CubeMesh->TexCoords[face.bUV] }
+                                    .TexCoord = { m_Mesh->TexCoords[face.bUV] }
                                 },
                                 {
                                     .Position = { (projectedVerts[2].x + 1.0f) * ((f32)pixelBuffer.Width / 2.0f), (projectedVerts[2].y + 1.0f) * ((f32)pixelBuffer.Height / 2.0f), projectedVerts[2].z, projectedVerts[2].w  },
-                                    .TexCoord = { m_CubeMesh->TexCoords[face.cUV] }
+                                    .TexCoord = { m_Mesh->TexCoords[face.cUV] }
                                 }
                             },
                             .Color = color
@@ -163,12 +170,16 @@ namespace Ace {
 
                 m_DebugInfo.TriangleCount = m_TrianglesToRender.size();
 
+                // Draw!
+
+                GraphicsDevice::DrawGrid(pixelBuffer, {0.4f, 0.4f, 0.4f, 1.0f}, 64, 64);
+
                 for (auto& triangle : m_TrianglesToRender) {
                     if (m_RenderFlags.Shaded) {
                         GraphicsDevice::DrawTriangleTextured(
                             pixelBuffer,
                             depthBuffer,
-                            *m_CubeTexture,
+                            *m_Texture,
                             triangle
                         );
                     }
@@ -236,8 +247,8 @@ namespace Ace {
         private:
             Camera m_MainCamera;
             std::vector<Triangle> m_TrianglesToRender;
-            Mesh* m_CubeMesh;
-            Texture* m_CubeTexture;
+            Mesh* m_Mesh;
+            Texture* m_Texture;
             RenderFlags m_RenderFlags;
             DirectionalLight m_DirectionalLight;
             DebugInfo m_DebugInfo;

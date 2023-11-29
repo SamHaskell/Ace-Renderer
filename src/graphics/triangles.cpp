@@ -1,4 +1,4 @@
-#include "graphics/triangle.hpp"
+#include "graphics/triangles.hpp"
 
 namespace Ace {
     Vec3 Triangle::BarycentricWeights(Vec2 point) {
