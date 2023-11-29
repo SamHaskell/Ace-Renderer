@@ -139,8 +139,8 @@ namespace Ace {
                             .Type = EventType::Key,
                             .Key = {
                                 .KeyCode = KeyCode(e.key.keysym.sym),
+                                .SystemRepeat = (e.key.repeat != 0),
                                 .Pressed = (e.key.state == SDL_PRESSED),
-                                .SystemRepeat = (e.key.repeat != 0)
                             }
                         };
                         OnEvent(event);
@@ -152,8 +152,8 @@ namespace Ace {
                             .Type = EventType::Key,
                             .Key = {
                                 .KeyCode = KeyCode(e.key.keysym.sym),
+                                .SystemRepeat = (e.key.repeat != 0),
                                 .Pressed = (e.key.state == SDL_PRESSED),
-                                .SystemRepeat = (e.key.repeat != 0)
                             }
                         };
                         OnEvent(event);

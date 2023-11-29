@@ -4,6 +4,15 @@
 #include "maths/maths.hpp"
 
 namespace Ace {
+    enum FrustumPlaneType {
+        FRUSTUM_LEFT = 0,
+        FRUSTUM_RIGHT,
+        FRUSTUM_TOP,
+        FRUSTUM_BOTTOM,
+        FRUSTUM_NEAR,
+        FRUSTUM_FAR
+    };
+
     struct Camera {
         Vec3 Rotation = { 0.0f, 0.0f, 0.0f };
         Vec3 Position = { 0.0f, 0.0f, -5.0f };
@@ -12,5 +21,6 @@ namespace Ace {
         f32 ZFar = 100.0f;
 
         Mat4 GetViewMatrix(Vec3 up = {0.0f, 1.0f, 0.0f});
+        Plane GetFrustumPlane(FrustumPlaneType frustumPlaneType);
     };
 };
