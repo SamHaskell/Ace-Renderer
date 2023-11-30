@@ -63,7 +63,7 @@ namespace Ace {
     struct Vec3 {
         Vec3() = default;
         Vec3(f32 x, f32 y, f32 z) : x(x), y(y), z(z) {}
-        Vec3(Vec4 vec);
+        Vec3(const Vec4& vec);
 
         f32 x;
         f32 y;

@@ -29,12 +29,12 @@ namespace Ace {
         i32 windowWidth = displayMode.w;
         i32 windowHeight = displayMode.h;
 
-        // windowWidth = 800;
-        // windowHeight = 600;
+        windowWidth = 800;
+        windowHeight = 600;
 
         u32 flags = 0; 
-        // flags |= SDL_WINDOW_ALLOW_HIGHDPI; 
         flags |= SDL_WINDOW_BORDERLESS;
+        // flags |= SDL_WINDOW_FULLSCREEN;
 
         m_Window = SDL_CreateWindow(
             NULL,
@@ -85,7 +85,6 @@ namespace Ace {
         ImGui_ImplSDLRenderer2_Init(m_Renderer);
 
         ImGui::StyleColorsDark();
-
         Initialise();
 
         /*

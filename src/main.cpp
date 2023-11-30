@@ -38,8 +38,9 @@ namespace Ace {
             ~AceRenderer() = default;
 
             void Initialise() override {
-                m_Mesh = Mesh::Load("assets/crab.obj");
-                m_Texture = Texture::Load("assets/crab.png");
+                m_Mesh = Mesh::Load("assets/cube.obj");
+                m_Mesh->Position.x = 0.0f;
+                m_Texture = Texture::Load("assets/cube.png");
                 m_DirectionalLight.Direction = Normalised({1.0f, -1.0f, 1.0f});
             }
 
@@ -49,8 +50,9 @@ namespace Ace {
             }
 
             void Update(f64 dt) override {
-                m_Mesh->Rotation += {0.0f * (f32)dt, 0.0f * (f32)dt, 0.0f * (f32)dt};
                 m_DebugInfo.FrameTime = dt;
+
+                m_Mesh->Position.x -= 0.4f * dt;
             }
 
             void Render(PixelBuffer& pixelBuffer, DepthBuffer& depthBuffer) override {
@@ -61,6 +63,7 @@ namespace Ace {
                 depthBuffer.Clear();
 
                 m_TrianglesToRender.clear();
+                m_TrianglesToClip.clear();
                 m_TrianglesToProject.clear();
 
                 Mat4 view = m_MainCamera.GetViewMatrix();
@@ -98,14 +101,7 @@ namespace Ace {
                     Vec3 vec_ab = Vec3(transformedVerts[1]) - Vec3(transformedVerts[0]);
                     Vec3 vec_ac = Vec3(transformedVerts[2]) - Vec3(transformedVerts[0]);
                     Vec3 normal = Cross(vec_ab, vec_ac);
-
                     normal.NormaliseInPlace();
-                    if (m_RenderFlags.Culling) {
-                        Vec3 camera = m_MainCamera.Position - Vec3(transformedVerts[0]);
-                        if (Dot(normal, camera) < 0.0f) {
-                            continue;
-                        }
-                    }
 
                     // Apply View Transformation
 
@@ -113,24 +109,18 @@ namespace Ace {
                     transformedVerts[1] = view * transformedVerts[1];
                     transformedVerts[2] = view * transformedVerts[2];
 
-                    // Clip
+                    // Backface Culling
 
-                    for (i32 i = 0; i < FRUSTUM_PLANE_TYPE_COUNT; i++) {
-                        Plane plane = m_MainCamera.GetFrustumPlane(FrustumPlaneType(i), aspectRatio);
-
-                        f32 sdfA = Dot(transformedVerts[0], plane.Normal);
-                        f32 sdfB = Dot(transformedVerts[1], plane.Normal);
-                        f32 sdfC = Dot(transformedVerts[2], plane.Normal);
-
-                        // If only one lies outside, we end up with 2 intersections + the other 2 original vertices, so must subdivide.
-                        // If two lie outside, find the two intersections and make the new triangle.
-                        // If all three lie outside we can discard the triangle.
+                    if (m_RenderFlags.Culling) {
+                        if (Dot(normal, - Vec3(transformedVerts[0])) < 0.0f) {
+                            continue;
+                        }
                     }
 
                     Color color = {1.0, 1.0, 1.0, 1.0};
 
-                    m_TrianglesToProject.push_back(
-                        {
+                    m_TrianglesToClip.push_back(
+                        {   
                             .Vertices = {
                                 {
                                     .Position = transformedVerts[0],
@@ -148,8 +138,87 @@ namespace Ace {
                             .Color = color
                         }
                     );
+                    
                 }
 
+                // Clipping
+                for (auto& triangle : m_TrianglesToClip) {
+                    
+                    // Convert triangle to polygon for clipping.
+                    Polygon polygon = {
+                        .Vertices = {
+                            triangle.Vertices[0], 
+                            triangle.Vertices[1], 
+                            triangle.Vertices[2]
+                        },
+                        .VertexCount = 3
+                    };
+
+                    // Clip against each frustum boundary plane.
+                    for (i32 i = 0; i < FRUSTUM_PLANE_TYPE_COUNT; i++) {
+                        Plane plane = m_MainCamera.GetFrustumPlane(FrustumPlaneType(i), aspectRatio);
+
+                        Vertex innerVertices[MAX_POLY_VERTICES];
+                        i32 innerVertexCount = 0;
+
+                        Vertex* currentVertex = &polygon.Vertices[0];
+                        Vertex* previousVertex = &polygon.Vertices[polygon.VertexCount - 1];
+
+                        f32 currentSDF = 0.0f;
+                        f32 previousSDF = Dot(Vec3(previousVertex->Position) - plane.Point, plane.Normal);
+
+                        while (currentVertex != &polygon.Vertices[polygon.VertexCount]) {
+                            currentSDF = Dot(Vec3(currentVertex->Position) - plane.Point, plane.Normal);
+
+                            if ((currentSDF * previousSDF) < 0.0f) {
+                                f32 t = previousSDF / (previousSDF - currentSDF);
+                                ACE_INFO("%f", t);
+                                Vec4 interpolatedPosition = Lerp(previousVertex->Position, currentVertex->Position, t);
+                                Vec2 interpolatedTexCoord = Lerp(previousVertex->TexCoord, currentVertex->TexCoord, t);
+                                innerVertices[innerVertexCount] = {
+                                    .Position = interpolatedPosition,
+                                    .TexCoord = interpolatedTexCoord
+                                };
+                                innerVertexCount ++;
+                            }
+
+                            if (currentSDF > 0.0f) {
+                                innerVertices[innerVertexCount] = *currentVertex;
+                                innerVertexCount ++;
+                            }
+
+                            previousSDF = currentSDF;
+                            previousVertex = currentVertex;
+                            currentVertex ++;
+                        }
+
+                        for (i32 j = 0; j < innerVertexCount; j++) {
+                            polygon.Vertices[j] = innerVertices[j];
+                        }
+                        polygon.VertexCount = innerVertexCount;    
+                    }
+
+                    // Subdivide polygon into triangles to be projected.
+
+                    if (polygon.VertexCount < 3) {
+                        continue;
+                    }
+
+                    for (i32 i = 2; i < polygon.VertexCount; i++) {
+
+                        Triangle tri = {
+                            .Vertices = {
+                                polygon.Vertices[0],
+                                polygon.Vertices[i - 1],
+                                polygon.Vertices[i]
+                            },
+                            .Color = triangle.Color
+                        };
+
+                        m_TrianglesToProject.push_back(tri);
+                    }
+                }
+      
                 for (auto& triangle : m_TrianglesToProject) {
 
                     // Apply Projection Transformation
@@ -177,7 +246,7 @@ namespace Ace {
                     // color.g *= lightingIntensity;
                     // color.b *= lightingIntensity;
 
-                    // Send triangle to be rastered
+                    // Send triangle to be rasterised
 
                     m_TrianglesToRender.push_back(
                         {
@@ -271,13 +340,13 @@ namespace Ace {
             void OnEvent(Event& e) override {
                 switch (e.Type) {
                     case EventType::Key:
-                        ACE_INFO("Key Event, %i", e.Key.KeyCode);
                         break;
                 }
             }
             
         private:
             Camera m_MainCamera;
+            std::vector<Triangle> m_TrianglesToClip;
             std::vector<Triangle> m_TrianglesToRender;
             std::vector<Triangle> m_TrianglesToProject;
             Mesh* m_Mesh;

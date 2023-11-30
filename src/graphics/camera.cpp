@@ -8,31 +8,40 @@ namespace Ace {
 
     Plane Camera::GetFrustumPlane(FrustumPlaneType frustumPlaneType, f32 aspectRatio) {
         Plane plane;
-        f32 cosHalfFOV = cos(DEG2RAD * FovY /2.0f);
-        f32 sinHalfFOV = sin(DEG2RAD * FovY /2.0f);
+
+        f32 fovX = atan(tan(DEG2RAD * FovY / 2.0f) * aspectRatio) * 2.0f;
+
+        fovX /= 2.0f;
+
+        f32 cosHalfFOVY = cos(DEG2RAD * FovY / 2.0f);
+        f32 sinHalfFOVY = sin(DEG2RAD * FovY / 2.0f);
+
+        f32 cosHalfFOVX = cos(fovX / 2.0f);
+        f32 sinHalfFOVX = sin(fovX / 2.0f);
+
         switch (frustumPlaneType) {
             case FRUSTUM_LEFT:
             {
                 plane.Point = {0.0f, 0.0f, 0.0f};
-                plane.Normal = {cosHalfFOV, 0.0f, sinHalfFOV};
+                plane.Normal = {cosHalfFOVX, 0.0f, sinHalfFOVX};
                 break;
             }
             case FRUSTUM_RIGHT:
             {
                 plane.Point = {0.0f, 0.0f, 0.0f};
-                plane.Normal = {-cosHalfFOV, 0.0f, sinHalfFOV};
+                plane.Normal = {-cosHalfFOVX, 0.0f, sinHalfFOVX};
                 break;
             }
             case FRUSTUM_TOP:
             {
                 plane.Point = {0.0f, 0.0f, 0.0f};
-                plane.Normal = {0.0f, -cosHalfFOV, sinHalfFOV};
+                plane.Normal = {0.0f, -cosHalfFOVY, sinHalfFOVY};
                 break;
             }
             case FRUSTUM_BOTTOM:
             {
                 plane.Point = {0.0f, 0.0f, 0.0f};
-                plane.Normal = {0.0f, cosHalfFOV, sinHalfFOV};
+                plane.Normal = {0.0f, cosHalfFOVY, sinHalfFOVY};
                 break;
             }
             case FRUSTUM_NEAR:
@@ -47,6 +56,8 @@ namespace Ace {
                 plane.Normal = {0.0f, 0.0f, -1.0f};
                 break;
             }
+            default:
+                break;
         }
         return plane;
     }

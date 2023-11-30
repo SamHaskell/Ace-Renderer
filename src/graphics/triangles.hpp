@@ -4,6 +4,8 @@
 #include "maths/vector.hpp"
 #include "graphics/color.hpp"
 
+#define MAX_POLY_VERTICES 12
+
 namespace Ace {
     struct Vertex {
         Vec4 Position;
@@ -26,5 +28,10 @@ namespace Ace {
     
         Vec3 BarycentricWeights(Vec2 point);
         Vec3 InterpolatedUVW(Vec3 barycentricWeights);
+    };
+
+    struct Polygon {
+        Vertex Vertices[MAX_POLY_VERTICES];
+        i32 VertexCount;
     };
 }
