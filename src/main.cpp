@@ -38,9 +38,9 @@ namespace Ace {
             ~AceRenderer() = default;
 
             void Initialise() override {
-                m_Mesh = Mesh::Load("assets/cube.obj");
+                m_Mesh = Mesh::Load("assets/f117.obj");
                 m_Mesh->Position.x = 0.0f;
-                m_Texture = Texture::Load("assets/cube.png");
+                m_Texture = Texture::Load("assets/f117.png");
                 m_DirectionalLight.Direction = Normalised({1.0f, -1.0f, 1.0f});
             }
 
@@ -51,8 +51,6 @@ namespace Ace {
 
             void Update(f64 dt) override {
                 m_DebugInfo.FrameTime = dt;
-
-                m_Mesh->Position.x -= 0.4f * dt;
             }
 
             void Render(PixelBuffer& pixelBuffer, DepthBuffer& depthBuffer) override {

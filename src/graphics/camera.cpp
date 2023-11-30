@@ -11,8 +11,6 @@ namespace Ace {
 
         f32 fovX = atan(tan(DEG2RAD * FovY / 2.0f) * aspectRatio) * 2.0f;
 
-        fovX /= 2.0f;
-
         f32 cosHalfFOVY = cos(DEG2RAD * FovY / 2.0f);
         f32 sinHalfFOVY = sin(DEG2RAD * FovY / 2.0f);
 
